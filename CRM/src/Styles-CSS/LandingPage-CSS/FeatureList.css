@@ -1,0 +1,10 @@
+.Com2-feature-list {
+    display:flex;
+    flex-direction: row; /* Create 3 equal columns */
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px; /* Space between grid items */
+    padding:20px; /* Optional: Add padding around the grid */
+  }
+  

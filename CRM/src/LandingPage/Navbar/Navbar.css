@@ -1,0 +1,48 @@
+.navbar-tesg-crm {
+    padding: 5px 30px;
+    display: flex;
+    align-items: center; /* Ensures items are aligned in the center of the row */
+    justify-content: space-between; /* Adds spacing between main sections */
+    position: sticky;
+    box-shadow: 2px 2px 3px rgba(133, 133, 133, 0.372);
+}
+
+.navbar-tesg-icon img {
+    width: 36%;
+    height: auto;
+}
+
+.navbar-tesg-link ul {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center; /* Aligns the links vertically in the row */
+}
+
+.navbar-tesg-buttons {
+    display: flex;
+    gap: 20px; /* Spacing between buttons */
+    align-items: center; /* Aligns buttons vertically in the row */
+}
+
+.navbar-tesg-buttons button {
+    padding: 14px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.navbar-tesg-get{
+    background-color: #19194F;
+    color: white;
+}
+.Navbar-tesg-Book-demo{
+    color: black;
+    border: 1px solid black;
+    background-color:white;
+}
+
+.navbar-tesg-buttons button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+}

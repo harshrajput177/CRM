@@ -1,0 +1,119 @@
+.Compontent-third-page-app {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding:  0 20px;
+    background: linear-gradient(to right, #DDDDE6, #b3daf0);
+    height: auto;
+    z-index: 4;
+  }
+  
+  .Compontent-third-page-header h1 {
+    max-width: 750px;
+    font-size: 1.7rem;
+    margin: 20px 0;
+  }
+  
+  .Compontent-third-page-header p {
+    max-width: 750px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .Compontent-third-page-buttons {
+    margin: 20px 10px;
+  }
+  
+  .Compontent-third-page-primary {
+    background-color: #19194F;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .Compontent-third-page-secondary {
+    background-color: transparent;
+    color:#19194F ;
+    padding: 10px 20px;
+    border: 1px solid #19194F;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .Compontent-third-page-main-content {
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .Compontent-third-section {
+    position: relative;
+    width: 100%;
+    margin-top: 100px;
+  }
+  
+  .Compontent-third-page-icons {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: -60px;
+    left: 0;
+    right: 0;
+  }
+
+  .top-icons{
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 40px;
+  }
+  .bottom-icons{
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  /* .icon {
+    text-align: center;
+    color: #19194F;
+  } */
+  
+  .center-image {
+    background: linear-gradient(to bottom, #F4A79D, #AAAAAA);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .assign-lead {
+    position: absolute;
+    bottom: 0;
+    left: 40%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    padding: 13px 30px;
+    border-radius: 5px;
+    text-align: right;
+  }
+  
+  .component-third{
+    margin-top: 120px;
+    position: relative;
+  }
+  .wave-second {
+    z-index: 0;
+    position: absolute;
+    top: -260px;
+    left: 0;
+    width: 100%; /* Ensure it spans the width of the container */
+    height: auto;
+    pointer-events: none; /* Prevent the SVG from interfering with clicks */
+  }

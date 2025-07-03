@@ -1,0 +1,182 @@
+.Login-container {
+  position: relative;
+  padding:  0 90px;
+  background-color: #2a4887;
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  }
+  
+  .Tesg-left-panel {
+    position: relative;
+    width: 35%;
+    background-color: #D3E7FF;
+    padding: 80px  40px;
+    display: flex;
+    text-align: left;
+    flex-direction: column;
+    justify-content: start;
+    align-items:start;
+  }
+
+  .technobase-text-color{
+    color: #21215E;
+  }
+
+  .Tesg-left-panel h2{
+    width: 90%;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.6;
+    text-align: left;
+  }
+.Tesg-logo-img{
+  margin-top: 35px;
+  width: 92%;
+}
+
+.Tesg-right-panel{
+  width: 100%;
+  height: 100vh;
+    position: absolute;
+    border-top-left-radius:32px;
+    border-bottom-left-radius: 32px;
+    background-color: white;
+    width: 46%;
+    height: fit-content;
+    top: 0;
+    left: 38%;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+  }
+
+  .Tesg-right-panel h2{
+    margin-top: 22px;
+  }
+  
+  .Tesg-role-buttons {
+    margin-top: 5px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+  }
+  .Tesg-role-button{
+    margin: 5px;
+    color: #000;
+    padding: 10px  12px;
+    border: 1px solid  black;
+    border-radius: 5px;
+    background: #fff;
+    cursor: pointer;
+  }
+
+  .Tesg-role-button:hover{
+    color: #fff;
+    background-color: #3b5998;
+  }
+
+  .Tesg-Login-form{
+    width: 100%;
+  }
+
+.captcha{
+  margin-top: 30px;
+}
+
+.Whole-Captcha{
+  margin: 23px 0;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.Tesg-main-form{
+  max-width: 600px;
+  box-shadow: none;
+  padding: 21.4px;
+  width: 100%;
+}
+
+.Tesg-main-form input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.View-Cap{
+  font-family:'Cambria, Cochin, Georgia, Times, 'Times', serif';
+  color:gray;
+  padding-top: 10px;
+  letter-spacing: 5px;
+  width: 20%;
+  text-align: center;
+  height: 35px;
+  background-color: #b3cef0;
+  text-decoration: line-through;
+}
+.btn-cached{
+  margin-top: 10px;
+  border: none;
+  color: #737373;
+  background-color: transparent;
+}
+.btn-cached:hover{
+  background-color: transparent;
+}
+  
+  .captcha-image {
+    display: flex;
+    align-items: center;
+  }
+  
+  .captcha-image img {
+    margin-right: 0;
+  }
+  
+  .Tesg-login-button{
+    width: 100%;
+    padding: 10px;
+    background-color: #3b5998;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .Tesg-label-check{
+    box-shadow: none;
+  }
+  
+  .Tesg-login-button:hover {
+    background-color: #2a4887;
+  }
+
+  .Tesg-Login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align all form elements to the left */
+  }
+  
+  .Tesg-label-check {
+    margin-bottom: 33px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-self: flex-start; /* Ensures the checkbox is aligned to the left */
+  }
+
+.checkbox-input input{
+  border: none;
+  box-shadow: none;
+}
+.remember-me{
+  margin-top: 7px;
+}
+  

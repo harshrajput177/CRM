@@ -1,0 +1,141 @@
+    /* Container for the form
+    .Sales-Form-Container{
+        display: flex;
+        flex-direction: row;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+
+
+    .Sales-form{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+  form {
+    background-color: #ffffff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.368);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* Form heading */
+  /* h1 {
+    text-align: center;
+    color: #333333;
+    margin-bottom: 20px;
+  }
+  
+  /* Label style */
+  /* label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555555;
+  } */
+  
+  /* Input fields style */
+  /* input[type="text"],
+  input[type="email"],
+  input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  } */
+/*   
+  input:focus {
+    border-color: #007BFF;
+    box-shadow: 0 0 10px rgba(7, 71, 138, 0.703);
+    outline: none;
+  } */
+  
+  /* Submit button style */
+ /* .Showlead-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #007BFF;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  } */
+  
+ /* .Showlead-btn:hover {
+    background-color: #0056b3;
+  } */
+  
+  /* Media Query for Mobile View */
+  /* @media (max-width: 480px) {
+    form {
+      padding: 15px 20px;
+    }
+  
+    h1 {
+      font-size: 1.5em;
+    }
+  
+    input,
+    button {
+      font-size: 14px;
+    }
+  }
+
+  .input-Color{
+    background-color: rgb(209, 209, 209);
+  }  */
+  
+
+
+
+
+  
+  /* Dashboard.css */
+.dashboard-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dashboard-container table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dashboard-container th, .dashboard-container td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.dashboard-container th {
+  background-color: #5C5787;
+  color: white;
+}
+
+.teammate-info {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.dashboard-container tbody tr:hover {
+  background-color: #f1f1f1;
+}
