@@ -1,0 +1,97 @@
+/* Overlay */
+.hrm-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 40px;
+  z-index: 999;
+}
+
+/* White card */
+.hrm-modal__content {
+  width: 90%;
+  max-width: 950px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Header */
+.hrm-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 28px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.close-icon {
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* Form */
+.hrm-modal__form {
+  padding: 28px;
+}
+.Employee-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 22px;
+}
+.Employee-form-group label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+.Employee-form-group span {
+  color: #e74c3c;
+}
+.Employee-form-group input,
+.Employee-form-group textarea,
+.Employee-form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Footer buttons */
+.hrm-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 30px;
+}
+.btn {
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  padding: 10px 28px;
+  cursor: pointer;
+}
+.btn--secondary {
+  background: #f2f2f2;
+}
+.btn--primary {
+  background: #4b38ef; /* वही बैंगनी जैसा screenshot में */
+  color: #ffffff;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

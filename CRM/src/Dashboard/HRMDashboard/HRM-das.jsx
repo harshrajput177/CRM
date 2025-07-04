@@ -39,15 +39,15 @@ function HRM() {
 
   return (
     <div className="app-container">
-      <aside className="sidebar">
+      <aside className="HRM-sidebar">
         <div className="logo">Anez</div>
-        <nav className="sidebar-nav">
+        <nav className="HRM-sidebar-nav">
           <ul>
             <li
               onClick={() => toggleDropdown('hrm')}
               className={`dropdown-toggle ${showDropdowns.hrm ? 'active' : ''}`}
             >
-              <FaUserTie className="sidebar-icon" /> HRM
+              <FaUserTie className="HRM-sidebaricon" /> HRM
               {showDropdowns.hrm ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
               {showDropdowns.hrm && (
                 <ul className="dropdown">
@@ -68,25 +68,25 @@ function HRM() {
             </li>
 
             <li onClick={() => toggleDropdown('department')} className="dropdown-toggle">
-              <FaUserFriends className="sidebar-icon" /> Department
+              <FaUserFriends className="HRM-sidebaricon" /> Department
             </li>
             <li onClick={() => toggleDropdown('leaves')} className="dropdown-toggle">
-              <FaBriefcase className="sidebar-icon" /> Leaves
+              <FaBriefcase className="HRM-sidebaricon" /> Leaves
             </li>
             <li onClick={() => toggleDropdown('payroll')} className="dropdown-toggle">
-              <FaDollarSign className="sidebar-icon" /> PayRoll
+              <FaDollarSign className="HRM-sidebaricon" /> PayRoll
             </li>
             <li onClick={() => toggleDropdown('attendance')} className="dropdown-toggle">
-              <FaTasks className="sidebar-icon" /> Employe Attendence
+              <FaTasks className="HRM-sidebaricon" /> Employe Attendence
             </li>
             <li onClick={() => toggleDropdown('setting')} className="dropdown-toggle">
-              <FaCog className="sidebar-icon" /> Setting
+              <FaCog className="HRM-sidebaricon" /> Setting
             </li>
           </ul>
         </nav>
       </aside>
 
-      <div className="main-content">
+      <div className="HRM-main-content">
         <header className="navbar">
           <h2>Hello Harsh 👋</h2>
           <div className="navbar-right">
@@ -99,35 +99,35 @@ function HRM() {
           {activePage === 'dashboard' && (
             <>
               <div className="stats">
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaUsers className="icon" />
                   Total Employee: 313
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaUserCheck className="icon" />
                   On Leave Employee: 55
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaTasks className="icon" />
                   Today's Working Employee: 55
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaCheckCircle className="icon" />
                   Completed Project: 150
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaUserFriends className="icon" />
                   Total Client: 151
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaDollarSign className="icon" />
                   Pay roll
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaBriefcase className="icon" />
                   Leave Applied
                 </div>
-                <div className="card">
+                <div className="HRMdas-card">
                   <FaBriefcase className="icon" />
                   Leave Pending
                 </div>

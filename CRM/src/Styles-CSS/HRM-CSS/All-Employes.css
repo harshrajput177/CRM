@@ -7,11 +7,11 @@ body {
   padding: 0;
 }
 
-.employee-directory {
+.HRM-employee-directory {
   padding: 2rem;
 }
 
-.search-bar {
+.HRM-search-bar {
   display: flex;
   gap: 2rem;
   margin-bottom: 2rem;
@@ -23,8 +23,8 @@ body {
   border-radius: 8px;
 }
 
-.search-bar input,
-.search-bar select {
+.HRM-search-bar input,
+.HRM-search-bar select {
   padding: 0.8rem 1rem;
   border-radius: 10px;
   border: 1px solid #ddd;
@@ -32,8 +32,8 @@ body {
   background: #fff;
 }
 
-.search-bar .filter-btn,
-.search-bar .add-employee-btn {
+.HRM-search-bar .filter-btn,
+.HRM-search-bar .add-employee-btn {
   padding: 0.8rem 1.2rem;
   border: none;
   border-radius: 10px;
@@ -51,13 +51,13 @@ body {
   color: white;
 }
 
-.employee-grid {
+.HRM-employee-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 2rem;
 }
 
-.employee-card {
+.HRM-employee-card {
   background-color: white;
   border-radius: 16px;
   padding: 1.5rem;
@@ -66,7 +66,7 @@ body {
   transition: transform 0.3s ease;
 }
 
-.employee-card:hover {
+.HRM-employee-card:hover {
   transform: translateY(-5px);
 }
 
@@ -78,13 +78,13 @@ body {
   margin-bottom: 1rem;
 }
 
-.employee-card h3 {
+.HRM-employee-card h3 {
   margin: 0.5rem 0 0.2rem;
   font-size: 1.2rem;
   color: #2d3436;
 }
 
-.employee-card p {
+.HRM-employee-card p {
   color: #636e72;
   font-size: 0.9rem;
 }
@@ -121,7 +121,7 @@ body {
   background-color: #dfe6e9;
 }
 
-.card-buttons {
+.HRM-card-buttons {
   display: flex;
   justify-content: space-around;
   margin-top: 1rem;
