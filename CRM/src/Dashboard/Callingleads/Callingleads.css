@@ -1,0 +1,125 @@
+/* LeadTable.css */
+
+.lead-table {
+  padding: 5px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lead-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.lead-table th, .lead-table td {
+  width: 100px;
+  max-width: 100px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  position: relative;
+}
+
+.expand-btn {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+
+th, td {
+  padding: 10px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: left;
+  font-size: 0.8rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #333;
+}
+
+td input[type="checkbox"] {
+  transform: scale(1.2);
+}
+
+.location {
+  font-size: 8px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 8px;
+  font-weight: 600;
+  display: inline-block;
+  text-align: center;
+}
+
+.status.closed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status.notcontacted {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status.contacted {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.dropdown-wrapper {
+  position: relative;
+}
+
+.dropdown-wrapper button {
+  background: none;
+  border: none;
+  font-size: 8px;
+  cursor: pointer;
+  color: #666;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  min-width: 120px;
+  z-index: 100;
+}
+
+.dropdown-menu div {
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.dropdown-menu div:hover {
+  background-color: #f2f2f2;
+}

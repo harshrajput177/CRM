@@ -1,37 +1,73 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Form from './Form';
-// import TeleSheet from './Tele-Form/Agent_Sheet';
-// import Form from './Tele-Form/Form';
-// import ExcelSheet from './Tele-Form/Fetch_ExcelSheet';
-// import AgentProfile from './AgentSheet/AgentProfile';
-// import AgentForm from './AgentData/AgentForm';
-// import TeleSheet2 from './AgentData/Tele_Sheet2';
-// import AdminForm from './Admin/AdminForm';
+import { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Form } from "react-router-dom";
+// import ExcelSheet from './Leads/AgentSheet/Fetch_ExcelSheet';
+import AdminForm from './Admin-Agent-forms/AdminForm';
 import Login from './LoginPage/Login';
 import Dashboard from './Dashboard/Dashboard';
-// import FileUploader from './Dashboard/Droplead/Droplead';
-import LandingPage from './LandingPage/Full_Landing_Page/Full_Landing_Page';
-import HRM from './Dashboard/HRMDashboard/HRM-das';
-// import Navbar from './LandingPage/Navbar/Navbar';
+import HRM from './Dashboard/HRMDashboard/Admin-plateform-E/HRM-das';
+// import TeleSheet from './Leads/AgentSheet/Agent_Sheet';
+import FileUploader from './Dashboard/Droplead/Droplead';
+import LeadTable from './Dashboard/Callingleads/Callingleads';
+import ColumnSelector from './Dashboard/Callingleads/Selectlead-th';
+import SelectedTable from './Dashboard/Callingleads/AdminAssignLead';
+import AgentPage from './AgentsPage/AgentPage';
+import Agentleads from './Dashboard/Callingleads/agentleads';
+import RegisterUser from './LoginPage/Register';
+import CallLeadsPage from './AgentsPage/CallLeadPage';
+import ProtectedRoute from "./ProtectedRoute";
+import DailyReport from './AgentsPage/WorkSession';
+import FileDisplay from './Admin-Agent-forms/RecentFile';
+import FollowUpSheet from './AgentsPage/FollowUp';
+import AssignedLeadsPage from './AgentsPage/ShowAssignLead';
+import InterestedLeads from './AgentsPage/Closedlead';
+import AgentDetails from './AgentsPage/AgentDetails';
+
 
 function App() {
+  const [selectedFile, setSelectedFile] = useState(null);
+
+
   return (
     <Router>
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      {/* <Route path="/" element={<LandingPage />} /> */}
       {/* <Route path="/fileuploader" element={<FileUploader />} /> */}
-      <Route path="/Login" element={<Login />} />
-      <Route path="/Dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Login />} />
+      <Route path="/Register" element={<RegisterUser />} />
       <Route path="/HRM-Dashboard" element={<HRM/>} />
-      {/* <Route path="/tele-sheet" element={<TeleSheet />} />
-      <Route path="/submit-Form" element={<ExcelSheet />} />
-      <Route path="/tele-sheet2" element={<TeleSheet2 />} />
-      <Route path="/add-agent" element={<AgentForm />} />
+      {/* <Route path="/tele-sheet" element={<TeleSheet />} /> */}
+      {/* <Route path="/submit-Form" element={<ExcelSheet />} /> */}
+      {/* <Route path="/tele-sheet2" element={<TeleSheet2 />} /> */}
       <Route path="/add-admin" element={<AdminForm/>} />
-      <Route path='/AgentProfile' element={<AgentProfile />} /> */}
-
+      <Route path='/droplead' element={<FileUploader />} />
+      <Route path='/leads' element={<LeadTable selectedFile={selectedFile} />} />
+      <Route path='/CallLead' element={<CallLeadsPage />} />
+      <Route path='/allagents' element={<AgentPage />} />
+      <Route path='/selectlead' element={selectedFile && (
+  <ColumnSelector 
+    key={selectedFile._id}    
+    selectedFile={selectedFile} 
+  />
+)
+} />
+      <Route path="/leadtable" element={<SelectedTable />} />
+      <Route path="/agentleads" element={<Agentleads />} />
+      <Route path="/all-Files" element={<FileDisplay onFileSelect={setSelectedFile}  />} />
+      <Route path="/WorkSession" element={<DailyReport />} />
+        <Route path="/FollowUpSheet" element={<FollowUpSheet />} />
+         <Route path="/Show_total_leads" element={<AssignedLeadsPage />} />
+         <Route path="/interested-leads" element={<InterestedLeads />} />
+        <Route path="/agent-details/:id" element={<AgentDetails />} />
+      <Route
+          path="/AgentDashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
     </Routes>
   </Router>
   );
@@ -41,48 +77,3 @@ export default App;
 
 
 
-
-
-// import * as React from 'react';
-// import Box from '@mui/material/Box';
-// import RadioGroup from '@mui/material/RadioGroup';
-// import Radio from '@mui/material/Radio';
-// import FormControl from '@mui/material/FormControl';
-// import FormControlLabel from '@mui/material/FormControlLabel';
-// import FormLabel from '@mui/material/FormLabel';
-// import { ThemeProvider, createTheme, useColorScheme } from '@mui/material/styles';
-
-// function MyApp() {
-//   const { mode, setMode } = useColorScheme();
-//   if (!mode) {
-//     return null;
-//   }
-//   return (
-//       <FormControl>
-//         <RadioGroup
-//           aria-labelledby="demo-theme-toggle"
-//           name="theme-toggle"
-//           row
-//           value={mode}
-//           onChange={(event) => setMode(event.target.value)}
-//         >
-//           <FormControlLabel value="light" control={<Radio />} label="Light" />
-//           <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-//         </RadioGroup>
-//       </FormControl>
-//   );
-// }
-
-// const theme = createTheme({
-//   colorSchemes: {
-//     dark: true,
-//   },
-// });
-
-// export default function ToggleColorMode() {
-//   return (
-//     <ThemeProvider theme={theme}>
-//       <MyApp />
-//     </ThemeProvider>
-//   );
-// }

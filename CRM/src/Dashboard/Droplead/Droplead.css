@@ -1,7 +1,7 @@
 .lead-file-uploader {
     width: 100%;
     max-width: 600px;
-    margin: 20px auto;
+    margin: 60px auto;
     text-align: center;
     font-family: Arial, sans-serif;
   }
@@ -58,3 +58,14 @@
     color: red;
   }
   
+
+  .upload-icon {
+  width: 220px;
+  margin-bottom: 10px;
+  opacity: 0.8;
+  transition: transform 0.3s ease;
+}
+
+.lead-upload-area:hover .upload-icon {
+  opacity: 1;
+}

@@ -1,158 +1,143 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import '../LoginPage/Login.css';
-import CachedIcon from '@mui/icons-material/Cached';
-import tesglogo from '../Images/Tesg-logo.png';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "../LoginPage/Login.css";
+import tesglogo from "../Images/GWI-LOGO.png";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  const [captcha, setCaptcha] = useState(generateCaptcha());
-  const [text, setText] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Generate Random Captcha
-  function generateCaptcha() {
-    return Math.random().toString(36).substring(2, 8).toLocaleLowerCase();
+const handleLogin = async (event, type) => {
+  event.preventDefault();
+  if (!username || !password) {
+    toast.error("All fields are required.");
+    return;
   }
 
-  // Refresh Captcha
-  const refreshCaptcha = () => {
-    setText('');
-    setCaptcha(generateCaptcha());
-  };
+  try {
+    const url =
+      type === "agent"
+        ? "http://localhost:5000/api/agent-login"
+        : "http://localhost:5000/api/admin-login";
 
-  // Form Submission Handler
-  const handleLogin = async (event) => {
-    event.preventDefault();
+    const response = await axios.post(
+      url,
+      { userId: username, password, rememberMe },
+      { headers: { "Content-Type": "application/json" } }
+    );
 
-    // Validate Captcha
-    if (text !== captcha) {
-      toast.error('Invalid CAPTCHA. Please try again.');
-      return;
-    }
+if (response.status === 200) {
+  console.log("Login Successful:", response.data);
 
-    if (!username || !password) {
-      toast.error('All fields are required.');
-      return;
-    }
+  if (type === "agent") {
+    // 👇 token + agentId dono store karo
+  localStorage.setItem("token", response.data.token);
+  localStorage.setItem("agentId", response.data.user.id); 
 
-    try {
-      // Sending login request
-      const response = await axios.post('http://localhost:5000/api/Admin/Admin-login', {
-        username,
-        password,
-        rememberMe,
-      });
+    navigate("/AgentDashboard"); 
+  } else {
+    navigate("/HRM-Dashboard");
+  }
+}
 
-      // Successful login
-      if (response.data.token) {
-        if (rememberMe) {
-          localStorage.setItem('token', response.data.token);
-        } else {
-          sessionStorage.setItem('token', response.data.token);
-        }
-        toast.success('Login Successful!');
 
-        // Redirect to dashboard
-        navigate('/dashboard');
-      }
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed!');
-    }
-  };
+  } catch (error) {
+    console.error("Login Error:", error.response?.data || error.message);
+    toast.error(error.response?.data?.message || "Server error ❌");
+  }
+};
+
 
   return (
-    <div className="Login-container">
-      <div className="Tesg-left-panel">
-        <h2>
-          Manage your <br />
-          business seamlessly with{' '}
-          <strong className="technobase-text-color">Technoebase</strong> <br /> CRM.
-        </h2>
-        <div className="Tesg-logo">
-          <img src={tesglogo} alt="Tesg Logo" className="Tesg-logo-img" />
-        </div>
-      </div>
+    <div className="Login-wrapper">
+      <div className="Login-card">
+        {/* Left Side - Form */}
+        <div className="Login-left">
+          <h2 className="Login-title">Welcome Back 👋</h2>
+          <p className="Login-subtitle">Sign in to continue to your CRM</p>
 
-      <div className="Tesg-right-panel">
-        <h2>Sign-in</h2>
-
-        <div className="Tesg-role-buttons">
-          <div>
-            <button  className="Tesg-role-button">Sign-in as Admin</button>
-          </div>
-          <div >
-            <button className="Tesg-role-button" >Sign-in as Agent</button>
-          </div>
-        </div>
-
-        <div className="Tesg-Login-form">
-          <form className="Tesg-main-form" onSubmit={handleLogin}>
+          <form className="Tesg-main-form">
             <input
               type="text"
               placeholder="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <input
-              placeholder="Enter Captcha"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              type="text"
+              className="input-field"
             />
 
-            <div className='Whole-Captcha'>
-              <span className='View-Cap'>{captcha}</span>
-              <span className='btn-captcha'>
-                <button className='btn-cached' type="button" onClick={refreshCaptcha}><CachedIcon /></button>
+            <div className="password-wrapper">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-field"
+              />
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
               </span>
             </div>
 
+
+
             <label className="Tesg-label-check">
-              <span className='checkbox-input'>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-              </span>
-              <span className='remember-me'> Remember Me</span>
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              <span className="remember-me">Remember Me</span>
             </label>
 
-            <button type="submit" className="Tesg-login-button">
-              Login
-            </button>
+            <div className="login-buttons">
+            <button
+  type="button"
+  className="Tesg-login-button agent-btn"
+  onClick={(e) => handleLogin(e, "agent")}
+>
+  Login Agent
+</button>
+
+
+              <button
+                type="submit"
+                className="Tesg-login-button admin-btn"
+                onClick={(e) => handleLogin(e, "admin")}
+              >
+                Login Admin
+              </button>
+            </div>
           </form>
         </div>
+
+        {/* Right Side - Image + Text */}
+        <div className="Login-right">
+          <img src={tesglogo} alt="Tesg Logo" className="Tesg-logo-img" />
+          <h2>
+            Manage your <br />
+            business seamlessly with <br />
+            <strong className="technobase-text-color">Technoebase CRM</strong>
+          </h2>
+        </div>
       </div>
-      <ToastContainer 
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        toastClassName="custom-toast"
-      />
+      <ToastContainer />
     </div>
   );
 }
 
 export default Login;
+
 
 
 

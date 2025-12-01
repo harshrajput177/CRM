@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import '../Styles-CSS/AgentForm.css';
+import '../../Styles-CSS/SalesManager-CSS/AgentForm.css';
 
 const AgentForm = () => {
     const [formData, setFormData] = useState({

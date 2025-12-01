@@ -1,12 +1,8 @@
-// Routes/Admin/Routes.js
 const express = require("express");
-const { registerAdmin } = require("../Controller/AddAdmin/AddAdmin");
-const { loginAdmin } = require("../Controller/AddAdmin/AddAdmin");
+const { adminLogin } = require("../Controller/LoginController/AdminController");
 
 const router = express.Router();
 
-// Register an agent
-router.post("/Admin-register", registerAdmin);
-router.post("/Admin-login", loginAdmin);
+router.post("/admin-login", adminLogin);
 
 module.exports = router;

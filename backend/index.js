@@ -1,27 +1,63 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require("path");
 const dotenv = require("dotenv");
 const multer = require('multer');
 const xlsx = require('xlsx');
 const fs = require('fs');
-const Form = require('./Model/AddLead');
-const agentRoutes = require("./routes/agentRoute");
-const adminRoutes = require("./routes/adminRoute");
+const authRoutes = require("./routes/LoginRoute");
+const adminauthroute = require("./routes/adminRoute");
 const connectDB = require('./Config/db');
+const fileRoutes = require("./routes/FileRouter");
+const selectedColumnsRoutes = require("./routes/SelectedData");
+const asignleadRoutes = require("./routes/Assignlead");
+const cookieParser = require("cookie-parser");
+const leadStatusRoutes = require("./routes/LeadStatusRout")
+const WorkSessionRoute = require("./routes/WorkSessionRoute");
 
 const app = express();
 app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Middleware
 app.use(bodyParser.json());
-app.use(cors());
+
+
 
 dotenv.config();
 connectDB();
 
-app.use("/api/Agent", agentRoutes);
-app.use("/api/Admin", adminRoutes);
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 
+app.use(express.json());
+
+// ✅ VERY IMPORTANT: uploads folder publicly serve karo
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// Test route
+app.get("/", (req, res) => {
+  res.send("Server running");
+});
+
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true })); 
+
+app.use("/api", authRoutes);
+app.use("/api",adminauthroute);
+
+app.use("/api", asignleadRoutes);
+
+app.use("/api", fileRoutes); 
+app.use("/api", selectedColumnsRoutes);
+
+app.use("/api", leadStatusRoutes);
+
+app.use("/api", WorkSessionRoute);
 
 // Configure multer for file uploads
 const upload = multer({ dest: 'uploads/' });
@@ -52,76 +88,24 @@ const processFile = (filePath, fileType) => {
 };
 
 
-// API to handle Excel and CSV uploads
-app.post('/upload-file', upload.single('file'), (req, res) => {
-  try {
-      const filePath = req.file.path;
-      const fileType = req.file.mimetype === 'text/csv' ? 'csv' : 'excel';
-
-      // Process the file based on its type
-      const fileData = processFile(filePath, fileType);
-
-      // Clean up the file after processing
-      fs.unlinkSync(filePath);
-
-      res.json({ data: fileData, type: fileType });
-  } catch (error) {
-      res.status(500).json({ message: 'Error processing the file', error });
-  }
-});
 
 
-
-
-
-
-
-// Routes
-app.post('/api/form/post', async (req, res) => {
-  try {
-    const form = new Form(req.body);
-    await form.save();
-    res.status(201).json(form);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-
-
-
-app.get('/api/form/get', async (req, res) => {
-  try {
-    const forms = await Form.find();
-    res.status(200).json(forms);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-app.put('/api/form/:id', async (req, res) => {
-  try {
-    const form = await Form.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json(form);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-app.delete('/api/form/delete/:id', async (req, res) => {
-  try {
-    const deletedForm = await Form.findByIdAndDelete(req.params.id);
-    if (!deletedForm) {
-      return res.status(404).json({ message: 'Form not found' });
-    }
-    res.status(200).json({ message: 'Form deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
-  }
-});
 
 
 // Start Server
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -30,6 +30,10 @@ html,
   height: 100%;
 }
 
+.HRM-sidebar::-webkit-scrollbar {
+  display: none;
+}
+
 .HRM-sidebar .logo {
   font-size: 24px;
   font-weight: bold;
@@ -47,28 +51,10 @@ html,
   list-style: none;
 }
 
-.HRM-sidebar-nav ul li:hover,
-.HRM-sidebar-nav ul li.active {
-  background-color: #5a4af4;
-  color: #fff !important;
-  border-radius:20px;
-}
-
-.HRM-sidebar-nav ul li:hover .HRM-sidebaricon,
-.HRM-sidebar-nav ul li.active .HRM-sidebaricon
-{
-  color: #fff !important;
-}
-
-
-.HRM-sidebar-nav ul li:hover .dropdown-icon,                       
-.HRM-sidebar-nav ul li.active .dropdown-icon{
-color: #fff;
-}
-
 
 .HRM-sidebar-nav ul li {
-  padding:  12px 15px ;
+    border-radius:20px;
+  padding:  12px 14px ;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
@@ -85,6 +71,26 @@ color: #fff;
   color: #5a4af4;
 }
 
+.HRM-sidebar-nav ul li:hover,
+.HRM-sidebar-nav ul li.active {
+  background-color: #5a4af4;
+  color: #fff !important;
+}
+
+.HRM-sidebar-nav ul li:hover .HRM-sidebaricon,
+.HRM-sidebar-nav ul li.active .HRM-sidebaricon
+{
+  color: #fff !important;
+}
+
+
+.HRM-sidebar-nav ul li:hover .dropdown-icon,                       
+.HRM-sidebar-nav ul li.active .dropdown-icon{
+color: #fff;
+}
+
+
+
 /* Main Content */
 .HRM-main-content {
   margin-left: 250px;
@@ -94,6 +100,8 @@ color: #fff;
   height: 100vh;
   overflow: hidden;
 }
+
+
 
 .dropdown-icon {
   margin-left: 8px;
@@ -106,6 +114,28 @@ color: #fff;
   color: white !important;
 }
 
+.dropdown li:hover{
+  text-decoration: underline;
+}
+
+
+.all-drop{
+display: flex;
+justify-content: space-between;
+}
+
+.icon-text-only{
+    display: flex;
+  flex-direction: row;
+  align-items: center;
+    gap: 10px;
+}
+
+.gwi-image{
+  width: 100px;
+  height:100px;
+  object-fit: cover;
+}
 
 /* Navbar */
 .navbar {
@@ -140,6 +170,9 @@ color: #fff;
   flex: 1;
 }
 
+.dashboard-scrollable::-webkit-scrollbar {
+  display: none;
+}
 /* Cards Section */
 .stats {
   display: grid;
@@ -154,6 +187,7 @@ color: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   display: flex;
+  align-items: center;
   gap: 20px;
   text-align: center;
   font-weight: 500;

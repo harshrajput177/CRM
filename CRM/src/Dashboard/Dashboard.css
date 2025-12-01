@@ -1,11 +1,13 @@
 /* Dashboard.css */
 
 .Tesg-dashboard {
-  padding: 0 20px;
+  padding: 0 ;
   display: flex;
   flex-direction: row;
-  height: 100%;
+  width: 100%;
+  height: auto;
   font-family: Arial, sans-serif;
+  position: relative;
 }
 
 .Dashboard-tesg-logo-img{
@@ -14,8 +16,9 @@
 }
 
 .Tesg-dashboard.light {
-  height: 100%;
+  height: 100vh;
   background: #ffffff;
+
   color: #000000;
 }
 
@@ -25,7 +28,7 @@
 }
 
 .Dashboard-tesg-sidebar {
-  width: 200px;
+  width: 300px;
   background: #ffffff;
   padding: 15px;
   box-shadow:-2px 0px 5px rgba(200, 200, 200, 0.185), /* Left side */
@@ -130,8 +133,9 @@
 
 
 .Dashboard-tesg-content {
-  flex: 1;
-  padding: 10px;
+width: 78%;
+height: auto;
+  padding: 10px 30px;
 }
 
 .Dashboard-tesg-topbar {
@@ -147,8 +151,9 @@
 .Dashboard-search-container {
   color: #000000;
   background-color: white;
-  position: relative;               /* Makes the container a reference point */
-  width: 400px;                     /* Matches input width */
+  position: relative;  
+  max-width: 30%;             /* Makes the container a reference point */
+  width: 350px;                     /* Matches input width */
   border: none;
 }
 
@@ -188,17 +193,18 @@
   border: 1px solid #444;
 }
 
+
 .Dashboard-tesg-summary-cards {
-  max-width: 720px;
-  display: flex;
-  gap: 30px;
-  justify-items: center;
-  justify-content: center;
-  align-items: center;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px; /* Cards ke beech spacing */
   margin-top: 40px;
-  margin-left: 80px;
-  margin-bottom: 60px;
+  cursor: pointer;
+  align-items: stretch; /* Height equal hogi */
+  justify-content: center;
 }
+
 
 .Dashboard-tesg-card {
   padding: 12px 20px;
@@ -221,13 +227,33 @@
   background-color:#e2ebffe8;
 }
 
+
+.Dashboard-tesg-profile{
+  position: absolute;
+  left:70%;
+  display: flex;
+  align-items: center;
+}
+
+
+.btn-logout{
+   border: none;
+   padding: 12px 34px;
+   color: white;
+   border-radius: 8px;
+   background-color: #444;
+   cursor: pointer;
+   box-shadow: 0 0 4px rgba(128, 128, 128, 0.267);
+}
+
+
 .Dashboard-tesg-image {
   position: absolute;
   z-index: 3;
   top: 22%;
   right: 22%;
-  width: 30px;  /* Adjust the size of the image */
-  height: 30px; /* Adjust the size of the image */
+  width: 30px;  
+  height: 30px; 
 }
 
 .Dashboard-tesg-icon {
@@ -251,7 +277,6 @@
 }
 
 .Dashboard-tesg-chart-card {
-  flex: 1;
   padding: 20px;
   border-radius: 8px;
   text-align: center;
@@ -280,7 +305,7 @@
 
 /* Adjust table styling */
 .Dashboard-tesg-table-section table {
-  width: 100%;
+  width: 80%;
   font-size: 14px;
   border-collapse: collapse;
   border-radius: 12px; /* Added border-radius for the table */
@@ -312,27 +337,8 @@
   border-right: none;
 }
 
-/* Image alignment in table */
-.agent-img-table {
-  width: 30px; /* Reduced image size */
-  height: 30px; /* Maintained aspect ratio */
-  border-radius: 50%; /* Circular image */
-  object-fit: cover; /* Maintain aspect ratio without stretching */
-  margin-right: 8px; /* Add space between image and text */
-}
 
-/* Align image and name horizontally and vertically center */
-.teammate-cell {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start; /* Align content to start */
-  gap: 8px; /* Add spacing between image and text */
-}
 
-/* Row styling for better visibility */
-/* .Dashboard-tesg-table-section tr {
-  border-bottom: 1px solid #ddd;
-} */
 
 .Dashboard-tesg-table-section tr:last-child {
   border-bottom: none; /* Remove border for last row */
@@ -361,12 +367,12 @@
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
   .Dashboard-tesg-table-section th, .Dashboard-tesg-table-section td {
-    padding: 8px 6px; /* Smaller padding for small screens */
-    font-size: 12px; /* Reduced font size for small screens */
+    padding: 8px 6px; 
+    font-size: 12px; 
   }
 
   .agent-img-table {
-    width: 25px; /* Smaller image size for responsiveness */
+    width: 25px; 
     height: 25px;
   }
 }

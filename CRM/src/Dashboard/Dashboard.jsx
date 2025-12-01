@@ -1,226 +1,376 @@
-import React, { useState } from 'react';
-import '../Dashboard/Dashboard.css';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { styled } from '@mui/material/styles';
-import unassigned from '../Images/Inbox.png';
-import assigned from '../Images/User.png'
-import closassigned from '../Images/Checkmark.png'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import tesgpic from '../Images/Tesg-logo.png';
-import SearchIcon from '@mui/icons-material/Search';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
-import ViewInArRoundedIcon from '@mui/icons-material/ViewInArRounded';
-import AccountBoxOutlinedIcon from '@mui/icons-material/AccountBoxOutlined';
-import AssessmentIcon from '@mui/icons-material/Assessment';
-import SettingsIcon from '@mui/icons-material/Settings';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import DashboardBar from './PICHART/DashboardBar';
-import leaderImg from '../Images/leaderImg.png';
+import React, { useState, useEffect } from "react";
+import "../Dashboard/Dashboard.css";
+import unassigned from "../Images/Inbox.png";
+import assigned from "../Images/User.png";
+import closassigned from "../Images/Checkmark.png";
+import tesgpic from "../Images/Tesg-logo.png";
+import SearchIcon from "@mui/icons-material/Search";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import ExpandMoreOutlinedIcon from "@mui/icons-material/ExpandMoreOutlined";
+import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
+import AccountBoxOutlinedIcon from "@mui/icons-material/AccountBoxOutlined";
+import AssessmentIcon from "@mui/icons-material/Assessment";
+import SettingsIcon from "@mui/icons-material/Settings";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false);
-  const [activeNav, setActiveNav] = useState('Dashboard');  // Track active nav item
+  const [activeNav, setActiveNav] = useState("Dashboard");
+  const [time, setTime] = useState(0); // seconds
+  const [sessionId, setSessionId] = useState(localStorage.getItem("sessionId"));
+  const [isPaused, setIsPaused] = useState(false); // 🔹 Stop/Resume state
+  const [assignedCount, setAssignedCount] = useState(0);
+  const agentId = localStorage.getItem("agentId");
+  const [followUpCount, setFollowUpCount] = useState(0);
+  const [closedLeadCount, setClosedLeadCount] = useState(0);
 
-  const MaterialUISwitch = styled(Switch)(({ theme }) => ({
-    // Switch styling
-  }));
 
-  const toggleTheme = () => {
-    setDarkMode(!darkMode);
+
+
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+  const agentId = localStorage.getItem("agentId");
+  if (!sessionId && agentId) {
+    axios
+      .post("http://localhost:5000/api/start-session", { agentId })
+      .then((res) => {
+        setSessionId(res.data.sessionId);
+        localStorage.setItem("sessionId", res.data.sessionId);
+
+        if (!localStorage.getItem("startTime")) {
+          localStorage.setItem("startTime", Date.now());
+        }
+      })
+      .catch((err) => console.error("Session start error:", err));
+  }
+
+  // Load saved time
+  const savedTime = localStorage.getItem("workingTime");
+  if (savedTime) setTime(parseInt(savedTime, 10));
+
+  const timer = setInterval(() => {
+    if (!isPaused) {
+      const startTime = parseInt(localStorage.getItem("startTime"), 10);
+      if (startTime) {
+        const elapsed =
+          Math.floor((Date.now() - startTime) / 1000) +
+          parseInt(localStorage.getItem("pausedTime") || 0, 10);
+        setTime(elapsed);
+        localStorage.setItem("workingTime", elapsed);
+      }
+    }
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, []); // 👈 empty array, run only once on mount
+
+
+
+
+useEffect(() => {
+  const fetchAssignedCount = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/assigned-leads/${agentId}`
+      );
+
+      console.log("Assigned Leads Response:", res.data);
+
+      // ✅ REAL DATA SOURCE
+      const leadsArray = res.data.leads || [];
+
+      setAssignedCount(Array.isArray(leadsArray) ? leadsArray.length : 0);
+
+    } catch (error) {
+      console.error("Error fetching assigned leads:", error);
+      setAssignedCount(0);
+    }
   };
 
-  const handleNavClick = (navItem) => {
-    setActiveNav(navItem);  // Set clicked item as active
+  if (agentId) fetchAssignedCount();
+}, [agentId]);
+
+
+
+
+useEffect(() => {
+  const fetchFollowUpCount = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/all-lead-status");
+
+      const filtered = res.data.data.filter(
+        (item) =>
+          item.agentId === agentId && 
+          item.followUp && 
+          item.followUp !== ""
+      );
+
+      setFollowUpCount(filtered.length);
+    } catch (error) {
+      console.error("Error fetching follow up data:", error);
+    }
+  };
+
+  fetchFollowUpCount();
+}, [agentId]);
+
+
+
+useEffect(() => {
+  const fetchClosedLeads = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/all-lead-status");
+
+      const closed = res.data.data.filter(
+        (item) =>
+          item.agentId === agentId &&
+          item.dispose === "Interested"
+      );
+
+      setClosedLeadCount(closed.length);
+    } catch (error) {
+      console.error("Error fetching closed leads:", error);
+    }
+  };
+
+  fetchClosedLeads();
+}, [agentId]);
+
+
+
+
+  const formatTime = (seconds) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs.toString().padStart(2, "0")}:${mins
+      .toString()
+      .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleLogout = () => {
+    axios
+      .post("http://localhost:5000/api/end-session", { sessionId })
+      .then((res) => {
+        console.log("Session ended:", res.data);
+        localStorage.removeItem("sessionId");
+        localStorage.removeItem("startTime");
+        localStorage.removeItem("workingTime");
+        localStorage.removeItem("pausedTime");
+        navigate("/");
+      })
+      .catch((err) => console.error("Error ending session:", err));
+  };
+
+  const toggleTheme = () => setDarkMode(!darkMode);
+
+  const handleNavClick = (navItem) => setActiveNav(navItem);
+
+  // 🔹 Stop/Resume logic
+  const handleStopResume = () => {
+    if (!isPaused) {
+      // Stop timer
+      setIsPaused(true);
+      // Save paused time
+      localStorage.setItem("pausedTime", time);
+    } else {
+      // Resume timer
+      setIsPaused(false);
+      // Reset startTime to now
+      localStorage.setItem("startTime", Date.now());
+    }
   };
 
   return (
-    <div className={`Tesg-dashboard ${darkMode ? 'dark' : 'light'}`}>
+    <div className={`Tesg-dashboard ${darkMode ? "dark" : "light"}`}>
       <aside className="Dashboard-tesg-sidebar">
         <div className="Dashboard-tesg-logo">
-          <img src={tesgpic} alt="" className='Dashboard-tesg-logo-img' />
+          <img src={tesgpic} alt="" className="Dashboard-tesg-logo-img" />
         </div>
-        {/* //navbar  */}
-        <nav className='left-nav-dashboard'>
+        <nav className="left-nav-dashboard">
           <ul>
             <li
-              className={` dashboardlist ${activeNav === 'Dashboard' ? 'active' : ''}`}
-              onClick={() => handleNavClick('Dashboard')}
+              className={`dashboardlist ${
+                activeNav === "Dashboard" ? "active" : ""
+              }`}
+              onClick={() => handleNavClick("Dashboard")}
             >
-              <DashboardIcon className={`nav-icon ${activeNav === 'Dashboard' ? 'active-icon' : ''}`} />
+              <DashboardIcon
+                className={`nav-icon ${
+                  activeNav === "Dashboard" ? "active-icon" : ""
+                }`}
+              />
               Dashboard
             </li>
             <li
-              className={` spacelist ${activeNav === 'Leads' ? 'active' : ''}`}
-              onClick={() => handleNavClick('Leads')}
+              className={`spacelist ${activeNav === "Leads" ? "active" : ""}`}
+              onClick={() => handleNavClick("Leads")}
             >
-             <div>
-             <ViewInArRoundedIcon className={`nav-icon ${activeNav === 'Leads' ? 'active-icon' : ''}`} />
-             Leads
-             </div>
               <div>
-              <ExpandMoreOutlinedIcon />
+                <ViewInArRoundedIcon
+                  className={`nav-icon ${
+                    activeNav === "Leads" ? "active-icon" : ""
+                  }`}
+                />
+                Leads
+              </div>
+              <div>
+                <ExpandMoreOutlinedIcon />
               </div>
             </li>
             <li
-              className={` spacelist ${activeNav === 'Agents' ? 'active' : ''}`}
-              onClick={() => handleNavClick('Agents')}
+              className={`spacelist ${activeNav === "Agents" ? "active" : ""}`}
+              onClick={() => handleNavClick("Agents")}
             >
-             <div>
-             <AccountBoxOutlinedIcon className={`nav-icon ${activeNav === 'Agents' ? 'active-icon' : ''}`} />
-             Agents
-             </div>
               <div>
-              <ExpandMoreOutlinedIcon />
+                <AccountBoxOutlinedIcon
+                  className={`nav-icon ${
+                    activeNav === "Agents" ? "active-icon" : ""
+                  }`}
+                />
+                Agents
+              </div>
+              <div>
+                <ExpandMoreOutlinedIcon />
               </div>
             </li>
             <li
-              className={` spacelist ${activeNav === 'CallTracking' ? 'active' : ''}`}
-              onClick={() => handleNavClick('CallTracking')}
+              className={`spacelist ${
+                activeNav === "CallTracking" ? "active" : ""
+              }`}
+              onClick={() => handleNavClick("CallTracking")}
             >
-             <div>
-             <SupportAgentIcon className={`nav-icon ${activeNav === 'CallTracking' ? 'active-icon' : ''}`} />
-             Call Tracking
-             </div>
-             <div>
-             <ExpandMoreOutlinedIcon />
-             </div>
-            </li>
-            <li
-              className={` spacelist ${activeNav === 'Reports' ? 'active' : ''}`}
-              onClick={() => handleNavClick('Reports')}
-            >
-             <div>
-             <AssessmentIcon className={`nav-icon ${activeNav === 'Reports' ? 'active-icon' : ''}`} />
-             Reports & Analytics
-             </div>
               <div>
-              <ExpandMoreOutlinedIcon />
+                <SupportAgentIcon
+                  className={`nav-icon ${
+                    activeNav === "CallTracking" ? "active-icon" : ""
+                  }`}
+                />
+                Call Tracking
+              </div>
+              <div>
+                <ExpandMoreOutlinedIcon />
               </div>
             </li>
             <li
-              className={` spacelist ${activeNav === 'Settings' ? 'active' : ''}`}
-              onClick={() => handleNavClick('Settings')}
+              className={`spacelist ${activeNav === "Reports" ? "active" : ""}`}
+              onClick={() => handleNavClick("Reports")}
             >
               <div>
-              <SettingsIcon className={`nav-icon ${activeNav === 'Settings' ? 'active-icon' : ''}`} />
-              Setting
+                <AssessmentIcon
+                  className={`nav-icon ${
+                    activeNav === "Reports" ? "active-icon" : ""
+                  }`}
+                />
+                Reports & Analytics
               </div>
-             <div>
-             <ExpandMoreOutlinedIcon />
-             </div>
+              <div>
+                <ExpandMoreOutlinedIcon />
+              </div>
+            </li>
+            <li
+              className={`spacelist ${
+                activeNav === "Settings" ? "active" : ""
+              }`}
+              onClick={() => handleNavClick("Settings")}
+            >
+              <div>
+                <SettingsIcon
+                  className={`nav-icon ${
+                    activeNav === "Settings" ? "active-icon" : ""
+                  }`}
+                />
+                Setting
+              </div>
+              <div>
+                <ExpandMoreOutlinedIcon />
+              </div>
             </li>
           </ul>
         </nav>
       </aside>
 
       <main className="Dashboard-tesg-content">
-      <header className="Dashboard-tesg-topbar">
-      <div className="Dashboard-search-container">
-       <SearchIcon className="search-icon" />
-         <input
-            type="text"
-            placeholder="Search..."
-            className="Dashboard-tesg-search-bar"
-         />
-       </div>
+        <header className="Dashboard-tesg-topbar">
+          <div className="Dashboard-search-container">
+            <SearchIcon className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="Dashboard-tesg-search-bar"
+            />
+          </div>
 
           <div className="Dashboard-tesg-profile">
-            <div><NotificationsIcon /></div>
-            <AccountCircleIcon className='Admin-dashboard-profile' />
+            <p>Time: {formatTime(time)}</p>
+      <button className="btn-logout" onClick={handleStopResume}>
+        {isPaused ? "Resume" : "Stop"}
+      </button>
+      <button className="btn-logout" onClick={handleLogout}>Logout</button>
           </div>
-          {/* <FormControlLabel  
-             control={<MaterialUISwitch  sx={{ m: 1 }} defaultChecked />}
-          /> */}
         </header>
+
         <section className="Dashboard-tesg-summary-cards">
-          <div className="Dashboard-tesg-card">
-            <div className='sky-circle'><img src={unassigned} alt="" className="Dashboard-tesg-image" /></div>
-            <span>Unassigned <h3>350</h3></span>
+          <div
+            className="Dashboard-tesg-card"
+            onClick={() => navigate("/CallLead")}
+          >
+            <div className="sky-circle">
+              <img src={unassigned} alt="" className="Dashboard-tesg-image" />
+            </div>
+            <span>Start Call</span>
           </div>
-          <div className="Dashboard-tesg-card">
-            <div className='sky-circle'>
+
+          <div className="Dashboard-tesg-card"  onClick={() => navigate("/FollowUpSheet")}>
+            <div className="sky-circle">
+              <img src={unassigned} alt="" className="Dashboard-tesg-image" />
+            </div>
+            <span >
+              Follow Up<h3>{followUpCount}</h3>
+            </span>
+          </div>
+
+          <div className="Dashboard-tesg-card"   onClick={() => navigate("/Show_total_leads")}>
+            <div className="sky-circle">
               <img src={assigned} alt="" className="Dashboard-tesg-image" />
             </div>
-            <span>Assigned <h3>450</h3></span>
+            <span>
+              Assigned Lead<h3>{assignedCount}</h3>
+            </span>
           </div>
-          <div className="Dashboard-tesg-card">
-            <div className='sky-circle'>
+
+          <div className="Dashboard-tesg-card"     onClick={() => navigate("/WorkSession")}>
+            <div className="sky-circle">
               <img src={closassigned} alt="" className="Dashboard-tesg-image" />
             </div>
-            <span>Closed <h3>3500</h3></span>
+            <span>
+                Call Duration  
+            </span>
           </div>
+
+          <div className="Dashboard-tesg-card"    onClick={() => navigate("/interested-leads")}>
+            <div className="sky-circle">
+              <img src={closassigned} alt="" className="Dashboard-tesg-image" />
+            </div>
+            <span>
+              Closed Lead <h3>{closedLeadCount}</h3>
+            </span>
+          </div>
+
         </section>
-
-
-        <section className="Dashboard-tesg-table-section">
-  <table>
-    <thead className='head-of-table'>
-      <tr>
-        <th className='head-thl'>Teammates</th>
-        <th>Assigned</th>
-        <th>Dialed</th>
-        <th>Pending</th>
-        <th>Follow-Up</th>
-        <th>Converted</th>
-        <th>Notes</th>
-        <th className='head-thr'>Feedback</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td className="teammate-cell">
-          <img src={leaderImg} alt="" className='agent-img-table' />
-          Nimi Martins
-        </td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>Awaiting response</td>
-        <td>Follow up on document</td>
-      </tr>
-      <tr>
-        <td className="teammate-cell">
-          <img src={leaderImg} alt="" className='agent-img-table' />
-          Nimi Martins
-        </td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>Awaiting response</td>
-        <td>Follow up on document</td>
-      </tr>
-      <tr>
-        <td className="teammate-cell">
-          <img src={leaderImg} alt="" className='agent-img-table' />
-          Priya Shah
-        </td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>34</td>
-        <td>Feedback from demo</td>
-        <td>Check feedback</td>
-      </tr>
-    </tbody>
-  </table>
-</section>
-        <DashboardBar />
       </main>
-   
     </div>
-
   );
 };
 
 export default Dashboard;
+
+
 
 
 

@@ -1,182 +1,166 @@
-.Login-container {
-  position: relative;
-  padding:  0 90px;
-  background-color: #2a4887;
+.Login-wrapper {
+  min-height: 100vh;
   display: flex;
-  flex-direction: row;
-  height: 100vh;
-  }
-  
-  .Tesg-left-panel {
-    position: relative;
-    width: 35%;
-    background-color: #D3E7FF;
-    padding: 80px  40px;
-    display: flex;
-    text-align: left;
-    flex-direction: column;
-    justify-content: start;
-    align-items:start;
-  }
-
-  .technobase-text-color{
-    color: #21215E;
-  }
-
-  .Tesg-left-panel h2{
-    width: 90%;
-    font-size: 32px;
-    font-weight: 500;
-    line-height: 1.6;
-    text-align: left;
-  }
-.Tesg-logo-img{
-  margin-top: 35px;
-  width: 92%;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(120deg, #ffffff, #dae5ff);
+  padding: 20px;
 }
 
-.Tesg-right-panel{
-  width: 100%;
-  height: 100vh;
-    position: absolute;
-    border-top-left-radius:32px;
-    border-bottom-left-radius: 32px;
-    background-color: white;
-    width: 46%;
-    height: fit-content;
-    top: 0;
-    left: 38%;
-    padding: 40px 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: start;
-  }
-
-  .Tesg-right-panel h2{
-    margin-top: 22px;
-  }
-  
-  .Tesg-role-buttons {
-    margin-top: 5px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-  }
-  .Tesg-role-button{
-    margin: 5px;
-    color: #000;
-    padding: 10px  12px;
-    border: 1px solid  black;
-    border-radius: 5px;
-    background: #fff;
-    cursor: pointer;
-  }
-
-  .Tesg-role-button:hover{
-    color: #fff;
-    background-color: #3b5998;
-  }
-
-  .Tesg-Login-form{
-    width: 100%;
-  }
-
-.captcha{
-  margin-top: 30px;
-}
-
-.Whole-Captcha{
-  margin: 23px 0;
+.Login-card {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
+  width: 900px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.25);
+  background: #fff;
 }
 
-.Tesg-main-form{
-  max-width: 600px;
-  box-shadow: none;
-  padding: 21.4px;
+/* Left Side */
+.Login-left {
+  flex: 1;
+  padding: 40px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.Login-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.Login-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 25px;
+}
+
+.input-field {
   width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s;
 }
 
-.Tesg-main-form input {
+.input-field:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+.Whole-Captcha {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.View-Cap {
+  padding: 10px 20px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.btn-cached {
+  margin-left: 10px;
+  background: #6366f1;
+  border: none;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-cached:hover {
+  background: #4f46e5;
+}
+
+.Tesg-label-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.Tesg-login-button {
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 12px;
+  background: #6366f1;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.View-Cap{
-  font-family:'Cambria, Cochin, Georgia, Times, 'Times', serif';
-  color:gray;
-  padding-top: 10px;
-  letter-spacing: 5px;
-  width: 20%;
+.Tesg-login-button:hover {
+  background: #4f46e5;
+}
+
+/* Right Side */
+.Login-right {
+  flex: 1;
+  background: linear-gradient(135deg, #00eaff, #2a1fff);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  height: 35px;
-  background-color: #b3cef0;
-  text-decoration: line-through;
+  padding: 40px;
 }
-.btn-cached{
-  margin-top: 10px;
-  border: none;
-  color: #737373;
-  background-color: transparent;
-}
-.btn-cached:hover{
-  background-color: transparent;
-}
-  
-  .captcha-image {
-    display: flex;
-    align-items: center;
-  }
-  
-  .captcha-image img {
-    margin-right: 0;
-  }
-  
-  .Tesg-login-button{
-    width: 100%;
-    padding: 10px;
-    background-color: #3b5998;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
 
-  .Tesg-label-check{
-    box-shadow: none;
-  }
-  
-  .Tesg-login-button:hover {
-    background-color: #2a4887;
-  }
-
-  .Tesg-Login-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align all form elements to the left */
-  }
-  
-  .Tesg-label-check {
-    margin-bottom: 33px;
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    align-self: flex-start; /* Ensures the checkbox is aligned to the left */
-  }
-
-.checkbox-input input{
-  border: none;
-  box-shadow: none;
+.Login-right h2 {
+  font-size: 22px;
+  margin-top: 20px;
+  line-height: 1.5;
 }
-.remember-me{
-  margin-top: 7px;
+
+.Tesg-logo-img {
+  width: 150px;
+  margin-bottom: 20px;
 }
-  
+
+.technobase-text-color {
+  color: #fbbf24;
+}
+
+
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper .input-field {
+  width: 100%;
+  padding-right: 40px; /* space for eye icon */
+}
+
+.toggle-password {
+  position: absolute;
+  top: 40%;
+  right: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #64748b;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #4f46e5;
+}
+
+.admin-btn{
+  margin-top: 20px;
+}

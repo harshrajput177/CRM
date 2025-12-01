@@ -1,16 +1,13 @@
 const mongoose = require("mongoose");
-
 const connectDB = async () => {
-    try {
-        mongoose.connect('mongodb+srv://harshrajput369:ApjBecNLOFwtIEkF@crm.8uzp2.mongodb.net/?retryWrites=true&w=majority&appName=CRM')
-        .then(() => {
-            console.log("Successfully connected to MongoDB");
-          })
-        // console.log(`MongoDB Connected: ${conn.connection.host}`);
-    } catch (error) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1); // Exit process with failure
-    }
+  try {
+    await mongoose.connect('mongodb+srv://tesgorganicmarketing:madebyharshcallingcrm@cluster2.vytwmwj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster2', {
+    });
+    console.log("✅ Successfully connected to MongoDB");
+  } catch (error) {
+    console.error("❌ MongoDB Connection Error:", error.message);
+    process.exit(1);
+  }
 };
 
 module.exports = connectDB;
