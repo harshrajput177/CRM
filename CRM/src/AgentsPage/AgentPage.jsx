@@ -7,6 +7,9 @@ const AgentPage = () => {
   const [agents, setAgents] = useState([]);
   const navigate = useNavigate(); 
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
   useEffect(() => {
     fetchAgents();
   }, []);
@@ -14,7 +17,8 @@ const AgentPage = () => {
   const fetchAgents = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get(`${BASE_URL}/api/users`
+, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -58,14 +62,14 @@ const AgentPage = () => {
       key={index}
       onClick={() => navigate(`/agent-details/${agent._id || agent.id}`)}
     >
-      <img
-        src={
-          agent.image
-            ? `http://localhost:5000/uploads/${agent.image}`
-            : "https://via.placeholder.com/100"
-        }
-        alt={agent.name}
-        className="Allagent-agent-image"
+     <img
+  src={
+    agent?.image
+      ? `${BASE_URL}/uploads/${agent.image}`
+      : "https://via.placeholder.com/100"
+  }
+  alt="Agent"
+  className="Allagent-agent-image"
       />
 
       <div className="Allagent-agent-info">

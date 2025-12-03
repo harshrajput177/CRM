@@ -8,7 +8,8 @@ export default function FileDisplay({ onFileSelect }) {
   const [error, setError] = useState('');
   const [selectedFileId, setSelectedFileId] = useState(null);
 
-  const API_URL = 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
   useEffect(() => {
     fetchAllFiles();
@@ -17,7 +18,8 @@ export default function FileDisplay({ onFileSelect }) {
   const fetchAllFiles = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/files`);
+      const response = await fetch(`${BASE_URL}/api/files`
+);
       const data = await response.json();
       
       if (data.files) {

@@ -5,10 +5,14 @@ const DailyReport = () => {
   const [sessions, setSessions] = useState([]);
   const agentId = localStorage.getItem("agentId");
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
   useEffect(() => {
     if (agentId) {
       axios
-        .get(`http://localhost:5000/api/sessions/${agentId}`)
+        .get(`${BASE_URL}/api/sessions/${agentId}`
+)
         .then((res) => setSessions(res.data))
         .catch((err) => console.error("Error fetching sessions:", err));
     }

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";   // << add
 import "../Droplead/Droplead.css";
 import uploadIcon from "../../Images/upload-icon-18.jpg";
 
-const API_BASE = "http://localhost:5000/api"; // <= IMPORTANT
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const FileUploader = () => {
   const [items, setItems] = useState([]); // [{id, file, status, progress, errorMsg}]
@@ -56,7 +57,8 @@ const FileUploader = () => {
     }, 250);
 
     try {
-      const res = await fetch(`${API_BASE}/upload`, {
+      const res = await fetch(`${BASE_URL}/api/upload`
+, {
         method: "POST",
         body: formData,
       });

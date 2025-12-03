@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./FollowUp.css"; // same styling use hogi
 
-const API_BASE = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const InterestedLeads = () => {
   const [interestedLeads, setInterestedLeads] = useState([]);
@@ -13,7 +14,8 @@ const InterestedLeads = () => {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/all-lead-status`);
+        const res = await axios.get(`${BASE_URL}/api/all-lead-status`
+);
 
  const filtered = res.data.data.filter(
           (lead) => lead.dispose === "Interested" && lead.agentId === agentId

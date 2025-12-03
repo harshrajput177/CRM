@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api"; 
+
+
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const CallLeadsPage = () => {
   const [leads, setLeads] = useState([]);
@@ -19,7 +22,7 @@ const CallLeadsPage = () => {
   const fetchLeads = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/assigned-leads/${agentId}`
+        `${BASE_URL}/api/assigned-leads/${agentId}`
       );
 
       console.log("Fetched Leads:", res.data);
@@ -101,7 +104,8 @@ const handleSaveRemark = async () => {
   }
 
   try {
-    await axios.post(`${API_BASE}/save-lead-status`, {
+    await axios.post(`${BASE_URL}/api/save-lead-status`
+, {
       agentId,
       lead: currentLead,
       remark,

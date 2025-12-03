@@ -3,7 +3,8 @@ import { useLocation } from "react-router-dom";
 import "../Callingleads/AllLeads.css";
 import { FaSearch, FaPlus } from "react-icons/fa";
 
-const API_BASE = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const SelectedTable = () => {
   const location = useLocation();
@@ -22,7 +23,8 @@ const SelectedTable = () => {
   useEffect(() => {
     const fetchSavedData = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/selectedData-Get/${fileId}`);
+        const res = await fetch(`${BASE_URL}/api/selectedData-Get/${fileId}`
+);
         const data = await res.json();
 
         setColumns(data.selectedColumns || []);
@@ -38,7 +40,8 @@ const SelectedTable = () => {
   // ✅ Fetch agents
   useEffect(() => {
     const fetchAgents = async () => {
-      const res = await fetch(`${API_BASE}/api/users`);
+      const res = await fetch(`${BASE_URL}/api/users`
+);
       const data = await res.json();
       setAgents(Array.isArray(data) ? data : data.agents || []);
     };
@@ -48,7 +51,8 @@ const SelectedTable = () => {
   // ✅ Fetch assigned leads (FULL BLOCK STRUCTURE)
   const fetchAssignedLeads = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/assigned-leads`);
+      const res = await fetch(`${BASE_URL}/api/assigned-leads`
+);
       const data = await res.json();
       setAssignedDbLeads(data); // ✅ keep full structure
     } catch (err) {
@@ -103,7 +107,8 @@ const isLeadAssigned = (lead) => {
     const selectedLeadData = selectedLeads.map(idx => filteredLeads[idx]);
 
     try {
-      const response = await fetch(`${API_BASE}/api/assign-leads`, {
+      const response = await fetch(`${BASE_URL}/api/assign-leads`
+, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -172,7 +177,8 @@ const isLeadAssigned = (lead) => {
                   onClick={() => assignLeadsToAgent(agent._id)}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/${agent.image}`}
+                    src={`${BASE_URL}/uploads/${agent?.image}`
+}
                     alt={agent.name}
                     className="agent-avatar"
                   />

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import "../Callingleads/Callingleads.css";
 
-const API_BASE = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const LeadTable = ({ selectedFile }) => {
   const [leads, setLeads] = useState([]);
@@ -12,7 +13,8 @@ useEffect(() => {
   const loadLeads = async () => {
     try {
       setLoading(true);
-const res = await fetch(`${API_BASE}/api/files/${selectedFile._id}/leads`);
+const res = await fetch(`${BASE_URL}/api/files/${selectedFile._id}/leads`
+);
 const data = await res.json();
 setLeads(data.leads || []);
 

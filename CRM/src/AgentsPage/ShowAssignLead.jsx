@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./AssignedLeads.css";
 
-const API_BASE = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const AssignedLeadsPage = () => {
   const [assignedLeads, setAssignedLeads] = useState([]);
@@ -13,7 +14,8 @@ const AssignedLeadsPage = () => {
 useEffect(() => {
   const fetchAssigned = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/assigned-leads/${agentId}`);
+      const res = await axios.get(`${BASE_URL}/api/assigned-leads/${agentId}`
+);
       // ✅ Direct leads array from API
       const allLeads = Array.isArray(res.data.leads) ? res.data.leads : [];
 

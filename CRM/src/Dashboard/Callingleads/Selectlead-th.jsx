@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import "../Callingleads/selectlead.css"; 
 import { useNavigate } from "react-router-dom";
 
-const API_BASE = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const ColumnSelector = ({ selectedFile }) => {
   const [columns, setColumns] = useState([]);
@@ -22,7 +23,8 @@ const ColumnSelector = ({ selectedFile }) => {
 
     const loadData = async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/files/${selectedFile._id}/leads`);
+        const res = await fetch(`${BASE_URL}/api/files/${selectedFile._id}/leads`
+);
         const data = await res.json();
 
         const headers = Object.keys(data.leads[0] || {});
@@ -58,7 +60,8 @@ const ColumnSelector = ({ selectedFile }) => {
 const submitSelectedColumns = async () => {
   try {
     // ✅ Pehle leads fetch karo
-    const res = await fetch(`${API_BASE}/api/files/${selectedFile._id}/leads`);
+    const res = await fetch(`${BASE_URL}/api/files/${selectedFile._id}/leads`
+);
     const json = await res.json();
 
     const allLeads = json.leads;
@@ -72,7 +75,8 @@ const submitSelectedColumns = async () => {
       return obj;
     });
 
-    await fetch(`${API_BASE}/api/selectData-Post`, {
+    await fetch(`${BASE_URL}/api/selectData-Post`
+, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

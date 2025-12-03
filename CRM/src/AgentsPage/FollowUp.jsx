@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./FollowUp.css"
 
-const API_BASE = "http://localhost:5000/api";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const FollowUpSheet = () => {
   const [followups, setFollowups] = useState([]);
@@ -20,7 +21,7 @@ const FollowUpSheet = () => {
   useEffect(() => {
     const fetchFollowUps = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/all-lead-status`);
+        const res = await axios.get(`${BASE_URL}/api/all-lead-status`);
         setFollowups(res.data.data);
         const filtered = res.data.data.filter(
   (item) => item.agentId === agentId
@@ -47,7 +48,8 @@ setFollowups(filtered);
 
   const updateLead = async () => {
     try {
-      const res = await axios.put(`${API_BASE}/update-lead-status/${currentLead._id}`, {
+      const res = await axios.put(`${BASE_URL}/api/update-lead-status/${currentLead._id}`
+, {
         remark: editRemark,
         dispose: editDispose,
         followUp: editFollowUp,

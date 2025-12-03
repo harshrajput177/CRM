@@ -3,7 +3,8 @@ import { useParams, useLocation } from "react-router-dom";
 import "../Callingleads/AllLeads.css";
 import { FaSearch, FaPlus, FaSlidersH, FaTh } from "react-icons/fa";
 
-const API_BASE = "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const Agentleads = () => 
   {
@@ -35,7 +36,7 @@ const Agentleads = () =>
 useEffect(() => {
   const fetchSavedData = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/selectedData-Get/${fileId}`);
+      const res = await fetch(`${BASE_URL}/api/selectedData-Get/${fileId}`);
       const data = await res.json();
       console.log("Data fetched:", data);
       setColumns(data.selectedColumns || []);
@@ -52,7 +53,8 @@ useEffect(() => {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/users");
+        const response = await fetch(`${BASE_URL}/api/users`
+);
         const data = await response.json();
         setAgents(data.agents || []);
       } catch (error) {
@@ -66,7 +68,8 @@ useEffect(() => {
     const selectedLeadData = selectedLeads.map(idx => filteredLeads[idx]);
 
     try {
-      const response = await fetch(`${API_BASE}/api/assign-leads`, {
+      const response = await fetch(`${BASE_URL}/api/assign-leads`
+, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

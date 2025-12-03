@@ -68,7 +68,7 @@ const getAssignedLeadsSummary = async (req, res) => {
     const summary = await AssignedLead.aggregate([
       {
         $lookup: {
-          from: "users", // User collection name
+          from: "users", 
           localField: "agentId",
           foreignField: "_id",
           as: "agentInfo"
