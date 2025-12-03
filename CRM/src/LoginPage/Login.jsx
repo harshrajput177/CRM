@@ -17,48 +17,73 @@ function Login() {
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
 const handleLogin = async (event, type) => {
   event.preventDefault();
+
   if (!username || !password) {
     toast.error("All fields are required.");
     return;
   }
 
+  // --- STEP 1: Get GEO Location ---
+  let latitude = null;
+  let longitude = null;
+
   try {
+    await new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          resolve();
+        },
+        (err) => {
+          console.warn("Location Permission Denied:", err);
+          resolve(); // Continue without location
+        }
+      );
+    });
+  } catch (e) {
+    console.error("Geo Error:", e);
+  }
+
+  try {
+    // --- STEP 2: Choose correct API URL ---
     const url =
       type === "agent"
-  ? `${BASE_URL}/api/agent-login`
-  : `${BASE_URL}/api/admin-login`;
+        ? `${BASE_URL}/api/agent-login`
+        : `${BASE_URL}/api/admin-login`;
 
-
-
+    // --- STEP 3: Send login + location info ---
     const response = await axios.post(
       url,
-      { userId: username, password, rememberMe },
+      { 
+        userId: username, 
+        password, 
+        rememberMe,
+        latitude,         // ⬅ backend ko jaa raha hai
+        longitude         // ⬅ backend ko jaa raha hai
+      },
       { headers: { "Content-Type": "application/json" } }
     );
 
-if (response.status === 200) {
-  console.log("Login Successful:", response.data);
+    if (response.status === 200) {
+      console.log("Login Successful:", response.data);
 
-  if (type === "agent") {
-    // 👇 token + agentId dono store karo
-  localStorage.setItem("token", response.data.token);
-  localStorage.setItem("agentId", response.data.user.id); 
-
-    navigate("/AgentDashboard"); 
-  } else {
-    navigate("/HRM-Dashboard");
-  }
-}
-
-
+      if (type === "agent") {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("agentId", response.data.user.id);
+        navigate("/AgentDashboard");
+      } else {
+        navigate("/HRM-Dashboard");
+      }
+    }
   } catch (error) {
     console.error("Login Error:", error.response?.data || error.message);
     toast.error(error.response?.data?.message || "Server error ❌");
   }
 };
+
 
 
   return (

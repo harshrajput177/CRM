@@ -49,25 +49,37 @@ const registerUser = async (req, res) => {
 };
 
 
-
 const loginUser = async (req, res) => {
   try {
-    const { userId, password } = req.body;
-    console.log("Login attempt:", userId, password); // ✅ check kya aa raha frontend se
+    const { userId, password, latitude, longitude } = req.body;
+
+    console.log("Login attempt:", userId);
 
     const user = await User.findOne({ userId });
-    console.log("User from DB:", user); // ✅ check kya DB me hai
-
     if (!user) return res.status(400).json({ message: "User not found ❌" });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match:", isMatch); // ✅ check match
+    if (!isMatch)
+      return res.status(400).json({ message: "Invalid credentials ❌" });
 
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials ❌" });
+    // ============================================
+    // 🔥 SAVE LOGIN LOCATION IF AVAILABLE
+    // ============================================
+    if (latitude && longitude) {
+      user.lastLoginLocation = {
+        latitude,
+        longitude,
+        loginTime: new Date(),
+      };
+      await user.save();
+      console.log("📍 Login location saved:", latitude, longitude);
+    } else {
+      console.log("⚠️ No geolocation received from frontend");
+    }
 
-
-
-    // ✅ generate JWT
+    // ============================================
+    // 🔥 GENERATE JWT TOKEN
+    // ============================================
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRET || "secretkey",
@@ -84,6 +96,7 @@ const loginUser = async (req, res) => {
         role: user.role,
         image: user.image,
         phone: user.phone,
+        lastLoginLocation: user.lastLoginLocation, 
       },
     });
   } catch (err) {
@@ -91,6 +104,7 @@ const loginUser = async (req, res) => {
     res.status(500).json({ message: "Server error ❌" });
   }
 };
+
 
 // ✅ Get All Users
 const getAllUsers = async (req, res) => {

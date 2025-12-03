@@ -8,13 +8,12 @@ const AgentDetails = () => {
   const navigate = useNavigate();
 
   const [agent, setAgent] = useState(null);
-  const [showResolved, setShowResolved] = useState(false);
   const [resolvedLeads, setResolvedLeads] = useState([]);
+  const [workingSessions, setWorkingSessions] = useState([]);
 
   const [stats, setStats] = useState({
     totalAssigned: 0,
     totalResolved: 0,
-    workingDuration: 0,
   });
 
       const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -44,6 +43,17 @@ const AgentDetails = () => {
       }
     };
 
+    const fetchWorkingSessions = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/api/sessions/${id}`);
+    setWorkingSessions(res.data);
+
+    console.log(res)
+  } catch (err) {
+    console.error("Error fetching work sessions:", err);
+  }
+};
+
     const fetchStats = async () => {
       try {
         const res = await axios.get(`${BASE_URL}/api/assigned-leads-summary`);
@@ -52,12 +62,10 @@ const AgentDetails = () => {
         if (agentData) {
           const joinedDate = new Date(agent?.createdAt || new Date());
           const today = new Date();
-          const diffDays = Math.floor((today - joinedDate) / (1000 * 60 * 60 * 24));
 
           setStats((prev) => ({
             ...prev,
             totalAssigned: agentData.totalLeads,
-            workingDuration: `${diffDays} Days`,
           }));
         }
       } catch (error) {
@@ -68,6 +76,7 @@ const AgentDetails = () => {
     fetchAgent();
     fetchStats();
     fetchResolvedLeads();
+    fetchWorkingSessions();
   }, [id]);
 
 
@@ -122,8 +131,8 @@ const AgentDetails = () => {
             className="stat-box clickable"
             onClick={() => navigate(`/working-duration/${id}`)}
           >
-            <h3>{stats.workingDuration}</h3>
-            <p>Working Duration</p>
+            <h4>Working Duration</h4>
+            <p>Check Timing</p>
           </div>
 
         </div>
@@ -133,10 +142,3 @@ const AgentDetails = () => {
 };
 
 export default AgentDetails;
-
-
-
-
-      //  const res = await axios.get(`http://localhost:5000/api/assigned-leads-summary`);
-      //                               `http://localhost:5000/api/sessions/${id}`
-      //   const res = await axios.get(`http://localhost:5000/api/resolved-leads/${id}`);

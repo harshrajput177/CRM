@@ -21,6 +21,7 @@ import FollowUpSheet from './AgentsPage/FollowUp';
 import AssignedLeadsPage from './AgentsPage/ShowAssignLead';
 import InterestedLeads from './AgentsPage/Closedlead';
 import AgentDetails from './AgentsPage/AgentDetails';
+import WorkingSession from './AgentsPage/AgentWorking';
 
 
 function App() {
@@ -58,6 +59,8 @@ function App() {
          <Route path="/Show_total_leads" element={<AssignedLeadsPage />} />
          <Route path="/interested-leads" element={<InterestedLeads />} />
         <Route path="/agent-details/:id" element={<AgentDetails />} />
+ <Route path="/working-duration/:id" element={<WorkingSession />} />
+
       <Route
           path="/AgentDashboard"
           element={
