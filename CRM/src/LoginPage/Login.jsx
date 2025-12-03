@@ -15,6 +15,9 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
 const handleLogin = async (event, type) => {
   event.preventDefault();
   if (!username || !password) {
@@ -25,8 +28,10 @@ const handleLogin = async (event, type) => {
   try {
     const url =
       type === "agent"
-        ? "http://localhost:5000/api/agent-login"
-        : "http://localhost:5000/api/admin-login";
+  ? `${BASE_URL}/api/agent-login`
+  : `${BASE_URL}/api/admin-login`;
+
+
 
     const response = await axios.post(
       url,

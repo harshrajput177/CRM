@@ -13,6 +13,9 @@ const RegisterUser = () => {
   });
   const [image, setImage] = useState(null);
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -35,7 +38,8 @@ const RegisterUser = () => {
     data.append("phone", formData.phone);
     if (image) data.append("image", image);
 
-    const res = await axios.post("http://localhost:5000/api/register", data, {
+    const res = await axios.post(`${BASE_URL}/api/register`
+, data, {
       headers: { "Content-Type": "multipart/form-data" },
     });
 
