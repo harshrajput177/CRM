@@ -187,7 +187,7 @@ function HRM() {
                   Select File
                 </div>
                 <div className="HRMdas-card"   onClick={() => navigate("/leads")}>
-                  <FaUserCheck className="icon" />
+                  <FaDollarSign className="icon" />
                  Total Leads
                 </div>
                 <div className="HRMdas-card"
@@ -207,16 +207,17 @@ function HRM() {
                 <div className="HRMdas-card"
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate("/allagents")}>
-                  <FaUserFriends className="icon" />
+                   <FaUserFriends className="icon" />
                   Total Agent: 151
                 </div>
                 <div className="HRMdas-card" onClick={() => navigate("/leadtable")}>
-                  <FaDollarSign className="icon" />
+                
+                      <FaUserCheck className="icon" />
                   Assign Lead
                 </div>
                 <div className="HRMdas-card">
                   <FaBriefcase className="icon" />
-                  Leave Applied
+                  Lead Status
                 </div>
                 <div className="HRMdas-card">
                   <FaBriefcase className="icon" />

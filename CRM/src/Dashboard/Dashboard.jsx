@@ -33,11 +33,15 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
 
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
   useEffect(() => {
   const agentId = localStorage.getItem("agentId");
   if (!sessionId && agentId) {
     axios
-      .post("http://localhost:5000/api/start-session", { agentId })
+      .post(`${BASE_URL}/api/start-session`
+, { agentId })
       .then((res) => {
         setSessionId(res.data.sessionId);
         localStorage.setItem("sessionId", res.data.sessionId);
@@ -76,7 +80,8 @@ useEffect(() => {
   const fetchAssignedCount = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/assigned-leads/${agentId}`
+        `${BASE_URL}/api/assigned-leads/${agentId}`
+
       );
 
       console.log("Assigned Leads Response:", res.data);
@@ -101,7 +106,8 @@ useEffect(() => {
 useEffect(() => {
   const fetchFollowUpCount = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/all-lead-status");
+      const res = await axios.get(`${BASE_URL}/api/all-lead-status`
+);
 
       const filtered = res.data.data.filter(
         (item) =>
@@ -124,7 +130,7 @@ useEffect(() => {
 useEffect(() => {
   const fetchClosedLeads = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/all-lead-status");
+      const res = await axios.get(`${BASE_URL}/api/all-lead-status`);
 
       const closed = res.data.data.filter(
         (item) =>
@@ -155,7 +161,8 @@ useEffect(() => {
 
   const handleLogout = () => {
     axios
-      .post("http://localhost:5000/api/end-session", { sessionId })
+      .post(`${BASE_URL}/api/end-session`
+, { sessionId })
       .then((res) => {
         console.log("Session ended:", res.data);
         localStorage.removeItem("sessionId");
