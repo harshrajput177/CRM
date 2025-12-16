@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const { uploadFile, getAllFiles, getLeadsByFileId } = require("../Controller/FileController");
+const { uploadFile, getAllFiles, getLeadsByFileId, deleteFileById } = require("../Controller/FileController");
 
 const router = express.Router();
 
@@ -19,5 +19,6 @@ const upload = multer({ storage });
 router.post("/upload", upload.single("file"), uploadFile);
 router.get("/files", getAllFiles);
 router.get("/files/:fileId/leads", getLeadsByFileId);
+router.delete("/files/:id", deleteFileById);
 
 module.exports = router;

@@ -111,6 +111,45 @@ const getAllFiles = async (req, res) => {
 };
 
 
+const deleteFileById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1️⃣ File DB se nikaalo
+    const file = await FileModel.findById(id);
+    if (!file) {
+      return res.status(404).json({
+        success: false,
+        message: "File not found in database",
+      });
+    }
+
+    // 2️⃣ File ka actual path banao
+    const filePath = path.join(__dirname, "..", file.filepath);
+
+    // 3️⃣ Server se file delete karo (agar exist karti hai)
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    } else {
+      console.warn("⚠ File not found on disk:", filePath);
+    }
+
+    // 4️⃣ DB se record delete
+    await FileModel.findByIdAndDelete(id);
+
+    return res.json({
+      success: true,
+      message: "File deleted successfully",
+    });
+  } catch (error) {
+    console.error("❌ Error deleting file:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while deleting file",
+    });
+  }
+};
+
 
 
 const getLeadsByFileId = async (req, res) => {
@@ -152,5 +191,5 @@ const getLeadsByFileId = async (req, res) => {
 };
 
 
-module.exports = { uploadFile, getAllFiles,  getLeadsByFileId };
+module.exports = { uploadFile, getAllFiles,  getLeadsByFileId, deleteFileById };
  
