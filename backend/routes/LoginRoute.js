@@ -47,6 +47,6 @@ router.post("/register", (req, res, next) => {
 router.get("/users",  getAllUsers);
 router.get("/users/:id", getUserById);
 router.put("/users/:id", protect, updateUser);
-router.delete("/users/:id", protect, deleteUser);
+router.delete("/users/:id", deleteUser);
 
 module.exports = router;

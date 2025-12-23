@@ -80,6 +80,36 @@ const AgentDetails = () => {
   }, [id]);
 
 
+  const handleDeleteAgent = async () => {
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this agent?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const token = localStorage.getItem("token");
+
+    await axios.delete(`${BASE_URL}/api/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Agent deleted successfully");
+
+    // Redirect after delete
+    navigate("/allagents"); // 👈 agent list page
+  } catch (error) {
+    console.error("Delete agent error:", error);
+    alert(
+      error.response?.data?.message || "Failed to delete agent"
+    );
+  }
+};
+
+
+
   if (!agent) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
   return (
@@ -92,6 +122,13 @@ const AgentDetails = () => {
           alt={agent.name}
           className="agent-details-photo"
         />
+
+        <div className="agent-action-buttons">
+  <button className="delete-agent-btn" onClick={handleDeleteAgent}>
+    ❌ Delete Agent
+  </button>
+</div>
+
 
         <table className="agent-details-table">
           <tbody>

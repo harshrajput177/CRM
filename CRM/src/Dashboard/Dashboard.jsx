@@ -71,7 +71,7 @@ const Dashboard = () => {
   }, 1000);
 
   return () => clearInterval(timer);
-}, []); // 👈 empty array, run only once on mount
+}, []); 
 
 
 
@@ -192,6 +192,34 @@ useEffect(() => {
       localStorage.setItem("startTime", Date.now());
     }
   };
+
+
+useEffect(() => {
+  const handleUnload = () => {
+    const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) return;
+
+    const payload = new Blob(
+      [JSON.stringify({ sessionId })],
+      { type: "application/json" }
+    );
+
+    navigator.sendBeacon(
+      `${BASE_URL}/api/end-session`,
+      payload
+    );
+
+    localStorage.clear();
+  };
+
+  window.addEventListener("unload", handleUnload);
+
+  return () => {
+    window.removeEventListener("unload", handleUnload);
+  };
+}, []);
+
+
 
   return (
     <div className={`Tesg-dashboard ${darkMode ? "dark" : "light"}`}>
@@ -316,7 +344,7 @@ useEffect(() => {
           <div className="Dashboard-tesg-profile">
             <p>Time: {formatTime(time)}</p>
       <button className="btn-logout" onClick={handleStopResume}>
-        {isPaused ? "Resume" : "Stop"}
+        {isPaused ? "Resume" : "Break"}
       </button>
       <button className="btn-logout" onClick={handleLogout}>Logout</button>
           </div>

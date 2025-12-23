@@ -29,7 +29,14 @@ const leadSchema = new mongoose.Schema({
   assignedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  
+  status: {
+  type: String,
+  enum: ["open", "followup", "closed"],
+  default: "open"
+}
+
 });
 
 const assignedLeadSchema = new mongoose.Schema({

@@ -18,7 +18,7 @@ const InterestedLeads = () => {
 );
 
  const filtered = res.data.data.filter(
-          (lead) => lead.dispose === "Interested" && lead.agentId === agentId
+          (lead) => lead.dispose === "Not Interested" && lead.agentId === agentId
         );
 
         setInterestedLeads(filtered);

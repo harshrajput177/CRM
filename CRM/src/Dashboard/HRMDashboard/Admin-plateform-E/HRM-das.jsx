@@ -171,7 +171,7 @@ function HRM() {
       <div className="HRM-main-content">
         <header className="navbar">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <h2>Hello Harsh 👋</h2>
+            <h2>Hello 👋</h2>
           </div>
         </header>
 
@@ -215,45 +215,11 @@ function HRM() {
                       <FaUserCheck className="icon" />
                   Assign Lead
                 </div>
-                <div className="HRMdas-card">
-                  <FaBriefcase className="icon" />
-                  Lead Status
-                </div>
-                <div className="HRMdas-card">
-                  <FaBriefcase className="icon" />
-                  Leave Pending
-                </div>
+             
               </div>
 
-              <div className="schedule-calendar">
-                <div className="schedule">
-                  <h3>Meeting Schedule</h3>
-                  <ul>
-                    <li>Project Kickoff - June 1, 2024 - 10:00 AM</li>
-                    <li>Weekly Team Sync - June 5, 2024 - 02:00 PM</li>
-                    <li>Client Presentation - June 10, 2024 - 11:00 AM</li>
-                    <li>Monthly Review - June 15, 2024 - 03:00 PM</li>
-                    <li>Weekly Review - June 20, 2024 - 11:00 AM</li>
-                  </ul>
-                </div>
-                <div className="calendar">
-                  <h3>Calendar</h3>
-                  <p>[Calendar Placeholder]</p>
-                </div>
-              </div>
 
-              <div className="schedule-calendar joiningDate">
-                <div className="schedule">
-                  <h3>Joininig Date of everyEmployee</h3>
-                  <ul>
-                    <li>Project Kickoff </li>
-                    <li>Weekly Team Sync </li>
-                    <li>Client Presentation </li>
-                    <li>Monthly Review </li>
-                    <li>Weekly Review </li>
-                  </ul>
-                </div>
-              </div>
+          
             </>
           )}
 

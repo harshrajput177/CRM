@@ -1,33 +1,56 @@
 const mongoose = require("mongoose")
 const LeadStatus = require("../Model/LeadStatus");
+const AssignedLead = require("../Model/Assignlead");
 
 const saveLeadStatus = async (req, res) => {
   try {
     const { agentId, lead, remark, dispose, followUp } = req.body;
 
-    if (!agentId || !lead) {
-      return res.status(400).json({ message: "AgentId and Lead are required" });
+    // ✅ HARD VALIDATION
+    if (!agentId || !lead || !lead.leadId) {
+      return res.status(400).json({
+        message: "agentId and lead.leadId are required",
+      });
     }
 
-    const newStatus = new LeadStatus({
+    // 1️⃣ Save LeadStatus with PROPER lead object
+    await LeadStatus.create({
       agentId,
-      lead,
+      lead: {
+        leadId: lead.leadId,   // 🔥 THIS IS KEY
+        data: lead.data
+      },
       remark,
       dispose,
       followUp,
     });
 
-    await newStatus.save();
+    // 2️⃣ If NOT INTERESTED → remove from AssignedLead
+    if (dispose === "Not Interested") {
+      await AssignedLead.updateOne(
+        { agentId },
+        {
+          $pull: {
+            leads: { leadId: lead.leadId }
+          }
+        }
+      );
+    }
 
-    res.status(201).json({
-      message: "Lead status saved successfully",
-      data: newStatus,
+    return res.json({
+      success: true,
+      message: "Lead closed & removed from assigned list",
     });
-  } catch (error) {
-    console.error("Error saving lead status:", error);
-    res.status(500).json({ message: "Internal server error" });
+
+  } catch (err) {
+    console.error("saveLeadStatus error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+
+
+
 
 
 const getAllLeadStatus = async (req, res) => {
