@@ -29,19 +29,20 @@ const AgentDetails = () => {
       }
     };
 
-    const fetchResolvedLeads = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
-        setResolvedLeads(res.data.data);
+ const fetchResolvedLeads = async () => {
+  try {
+   const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
+setResolvedLeads(res.data.data);
+setStats(prev => ({
+  ...prev,
+  totalResolved: res.data.totalResolved
+}));
 
-        setStats((prev) => ({
-          ...prev,
-          totalResolved: res.data.totalResolved,
-        }));
-      } catch (error) {
-        console.error("Resolved leads error:", error);
-      }
-    };
+  } catch (error) {
+    console.error("Resolved leads error:", error);
+  }
+};
+
 
     const fetchWorkingSessions = async () => {
   try {

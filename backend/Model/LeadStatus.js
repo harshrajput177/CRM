@@ -6,10 +6,13 @@ const leadStatusSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  lead: {
-    type: Object, // original lead ka pura object ya selected fields
-    required: true,
-  },
+
+    leadId: {
+      type: String,
+      required: true,
+      index: true, // fast query
+    },
+    
   remark: {
     type: String,
     default: "",

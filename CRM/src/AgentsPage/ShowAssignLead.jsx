@@ -60,7 +60,8 @@ useEffect(() => {
 
 <tbody>
   {assignedLeads.map((lead, index) => {
-    const data = lead?.data?.data || {};
+    const data = lead?.data || {};
+
 
     return (
       <tr key={index}>

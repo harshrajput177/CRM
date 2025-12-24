@@ -1,55 +1,76 @@
 const AssignedLead = require("../../Model/Assignlead");
-const mongoose = require("mongoose");
+
+/* ✅ Unicode-safe stable hash (SAME AS FRONTEND) */
+const generateLeadHash = (lead) => {
+  const str = JSON.stringify(lead);
+  let hash = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0; // 32bit integer
+  }
+
+  return String(hash);
+};
 
 const assignLeadsToAgent = async (req, res) => {
   const { agentId, leads, fileId } = req.body;
 
-  // console.log("Incoming Body:", req.body);
-
   if (!agentId || !fileId || !Array.isArray(leads)) {
-    return res.status(400).json({ message: "agentId, fileId & leads required" });
+    return res
+      .status(400)
+      .json({ message: "agentId, fileId & leads required" });
   }
 
   try {
     let record = await AssignedLead.findOne({ agentId });
     if (!record) record = new AssignedLead({ agentId, leads: [] });
 
-    const existing = record.leads.map(l =>
-      `${l.leadId}_${l.sourceFileId}`
+    /* ✅ Existing leads check (leadId + fileId) */
+    const existingKeys = new Set(
+      record.leads.map(
+        l => `${l.leadId}_${l.sourceFileId}`
+      )
     );
 
-    const preparedLeads = leads.map(lead => {
+    const preparedLeads = leads
+      .map((lead) => {
+        const leadHash = generateLeadHash(lead);
 
-      // ✅ HERE IS THE FIX
-      const leadUniqueId = lead.id || lead.leadId || `${fileId}_${Date.now()}`;
-
-      return {
-        leadId: leadUniqueId,   // ✅ String unique id
-        sourceFileId: fileId,   // ✅ File reference
-        data: lead,
-        assigned: true,
-        assignedTo: agentId,
-        assignedAt: new Date()
-      };
-
-    }).filter(l =>
-      !existing.includes(`${l.leadId}_${l.sourceFileId}`)
-    );
+        return {
+          leadId: leadHash,                // ✅ HASH ID
+          sourceFileId: String(fileId),
+          data: lead,
+          assigned: true,
+          assignedTo: agentId,
+          assignedAt: new Date(),
+          status: "open"
+        };
+      })
+      .filter(l => {
+        const key = `${l.leadId}_${l.sourceFileId}`;
+        return !existingKeys.has(key);     // ✅ prevent duplicates
+      });
 
     if (!preparedLeads.length) {
-      return res.json({ message: "Already assigned" });
+      return res.json({ message: "No new leads to assign" });
     }
 
     record.leads.push(...preparedLeads);
     await record.save();
 
-    res.status(201).json({ message: "Leads assigned successfully" });
+    res.status(201).json({
+      message: "Leads assigned successfully",
+      count: preparedLeads.length
+    });
 
   } catch (error) {
     console.error("Assign Leads Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 const getAllAssignedLeads = async (req, res) => {
   const data = await AssignedLead.find();

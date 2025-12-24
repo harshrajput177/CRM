@@ -18,33 +18,41 @@ const FollowUpSheet = () => {
   const [editDispose, setEditDispose] = useState("");
   const [editFollowUp, setEditFollowUp] = useState("");
 
-  useEffect(() => {
-    const fetchFollowUps = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/all-lead-status`);
-        setFollowups(res.data.data);
-        const filtered = res.data.data.filter(
-  (item) => item.agentId === agentId
-);
-setFollowups(filtered);
+useEffect(() => {
+  const fetchFollowUps = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/api/resolved-leads/${agentId}`
+      );
 
-      } catch (error) {
-        console.error("Error fetching follow-ups:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // ✅ DIRECTLY SET DATA (NO EXTRA FILTER)
+      setFollowups(res.data.data);
 
-    fetchFollowUps();
-  }, []);
-
-  const openEditModal = (lead) => {
-    setCurrentLead(lead);
-    setEditRemark(lead.remark || "");
-    setEditDispose(lead.dispose || "");
-    setEditFollowUp(lead.followUp || "");
-    setShowModal(true);
+    } catch (error) {
+      console.error("Error fetching follow-ups:", error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (agentId) {
+    fetchFollowUps();
+  } else {
+    setLoading(false);
+  }
+}, [agentId]);
+
+
+const openEditModal = (lead) => {
+  setCurrentLead(lead);
+  setEditRemark(lead.remark ?? "");
+  setEditDispose(lead.dispose ?? "");
+  setEditFollowUp(
+    lead.followUp ? lead.followUp.split("T")[0] : ""
+  );
+  setShowModal(true);
+};
+
 
   const updateLead = async () => {
     try {
@@ -85,7 +93,7 @@ setFollowups(filtered);
       >
         <thead style={{ background: "#eee" }}>
           <tr>
-            <th>Lead Name</th>
+            <th>Name</th>
             <th>Phone</th>
             <th>Remark</th>
             <th>Dispose</th>
@@ -94,26 +102,25 @@ setFollowups(filtered);
           </tr>
         </thead>
 
-        <tbody>
-          {followups.map((item, index) => (
-            <tr key={index} onClick={() => openEditModal(item)}>
-              <td>{item.lead?.Name || "-"}</td>
+  <tbody>
+  {followups.map((item, index) => (
+    <tr key={item._id || index} onClick={() => openEditModal(item)}>
 
-              <td>
-                {item.lead?.Phone_1 ||
-                  item.lead?.Phone_Standard_format ||
-                  item.lead?.Phone_From_WEBSITE ||
-                  item.lead?.Phone ||
-                  "-"}
-              </td>
+      {/* ✅ NAME */}
+      <td>{item.name || "-"}</td>
 
-              <td>{item.remark || "-"}</td>
-              <td>{item.dispose || "-"}</td>
-              <td>{item.followUp || "-"}</td>
-              <td>{new Date(item.createdAt).toLocaleString()}</td>
-            </tr>
-          ))}
-        </tbody>
+      {/* ✅ PHONE */}
+      <td>{item.phone || "-"}</td>
+
+      <td>{item.remark || "-"}</td>
+      <td>{item.dispose || "-"}</td>
+      <td>{item.followUp || "-"}</td>
+      <td>{new Date(item.createdAt).toLocaleString()}</td>
+
+    </tr>
+  ))}
+</tbody>
+
       </table>
 
       {/* Edit Modal */}

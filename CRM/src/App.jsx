@@ -22,6 +22,7 @@ import AssignedLeadsPage from './AgentsPage/ShowAssignLead';
 import InterestedLeads from './AgentsPage/Closedlead';
 import AgentDetails from './AgentsPage/AgentDetails';
 import WorkingSession from './AgentsPage/AgentWorking';
+import TotalResolvedLeads from './Admin-Agent-forms/AgentData/TotalResolvedLead';
 
 
 function App() {
@@ -51,6 +52,11 @@ function App() {
   />
 )
 } />
+
+  <Route
+    path="/total-resolved/:id"
+    element={<TotalResolvedLeads />}
+  />
       <Route path="/leadtable" element={<SelectedTable />} />
       <Route path="/agentleads" element={<Agentleads />} />
       <Route path="/all-Files" element={<FileDisplay onFileSelect={setSelectedFile}  />} />

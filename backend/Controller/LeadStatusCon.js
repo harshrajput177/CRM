@@ -1,45 +1,54 @@
 const mongoose = require("mongoose")
-const LeadStatus = require("../Model/LeadStatus");
 const AssignedLead = require("../Model/Assignlead");
+const LeadStatus = require("../Model/LeadStatus");
 
 const saveLeadStatus = async (req, res) => {
   try {
-    const { agentId, lead, remark, dispose, followUp } = req.body;
+    const { agentId, leadId, remark, dispose, followUp } = req.body;
 
-    // ✅ HARD VALIDATION
-    if (!agentId || !lead || !lead.leadId) {
+    if (!agentId || !leadId || !dispose) {
       return res.status(400).json({
-        message: "agentId and lead.leadId are required",
+        message: "agentId, leadId and dispose are required",
       });
     }
 
-    // 1️⃣ Save LeadStatus with PROPER lead object
-    await LeadStatus.create({
+    // 🔥 STEP 1: get actual lead data from AssignedLead
+    const assigned = await AssignedLead.findOne(
+      { agentId, "leads.leadId": String(leadId) },
+      { "leads.$": 1 }
+    );
+
+    const leadData = assigned?.leads?.[0]?.data || {};
+
+    // 🔥 STEP 2: save lead status WITH lead snapshot
+    const saved = await LeadStatus.create({
       agentId,
-      lead: {
-        leadId: lead.leadId,   // 🔥 THIS IS KEY
-        data: lead.data
-      },
+      leadId,
+      lead: leadData,      // ✅ THIS FIXES EVERYTHING
       remark,
       dispose,
       followUp,
     });
 
-    // 2️⃣ If NOT INTERESTED → remove from AssignedLead
+    // ❌ Remove ONLY that lead when closed
     if (dispose === "Not Interested") {
       await AssignedLead.updateOne(
-        { agentId },
+        {
+          agentId,
+          "leads.leadId": String(leadId),
+        },
         {
           $pull: {
-            leads: { leadId: lead.leadId }
+            leads: { leadId: String(leadId) }
           }
         }
       );
     }
 
-    return res.json({
+    res.json({
       success: true,
-      message: "Lead closed & removed from assigned list",
+      message: "Lead status saved successfully",
+      data: saved,
     });
 
   } catch (err) {
@@ -47,8 +56,6 @@ const saveLeadStatus = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
 
 
 
@@ -103,17 +110,51 @@ const updateLeadStatus = async (req, res) => {
 };
 
 
+
 const getResolvedLeadsByAgent = async (req, res) => {
   try {
     const { agentId } = req.params;
 
-    const resolvedLeads = await LeadStatus.find({
-      agentId: new mongoose.Types.ObjectId(agentId)
+    // 1️⃣ Get resolved lead statuses
+    const resolvedStatuses = await LeadStatus.find({
+      agentId: agentId,
+      $or: [
+        { dispose: { $exists: true, $ne: "" } },
+        { remark: { $exists: true, $ne: "" } },
+        { followUp: { $exists: true, $ne: null } }
+      ]
     }).sort({ createdAt: -1 });
 
+    // 2️⃣ Get assigned leads of agent
+    const assigned = await AssignedLead.findOne({ agentId });
+
+    // Safety check
+    if (!assigned) {
+      return res.json({ totalResolved: 0, data: [] });
+    }
+
+    // 3️⃣ Merge data
+    const finalLeads = resolvedStatuses.map(status => {
+      const matchedLead = assigned.leads.find(
+        l => String(l.leadId) === String(status.leadId)
+      );
+
+      return {
+        _id: status._id,
+        leadId: status.leadId,
+        name: matchedLead?.data?.Name || "N/A",
+        phone: matchedLead?.data?.Phone || "-",
+        email: matchedLead?.data?.Email || "-",
+        dispose: status.dispose,
+        remark: status.remark,
+        followUp: status.followUp,
+        createdAt: status.createdAt
+      };
+    });
+
     res.status(200).json({
-      totalResolved: resolvedLeads.length,
-      data: resolvedLeads
+      totalResolved: finalLeads.length,
+      data: finalLeads
     });
 
   } catch (error) {
@@ -121,6 +162,7 @@ const getResolvedLeadsByAgent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

@@ -11,26 +11,33 @@ const InterestedLeads = () => {
   const agentId = localStorage.getItem("agentId");
 
 
-  useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/all-lead-status`
-);
+useEffect(() => {
+  const fetchLeads = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/api/resolved-leads/${agentId}`
+      );
 
- const filtered = res.data.data.filter(
-          (lead) => lead.dispose === "Not Interested" && lead.agentId === agentId
-        );
+      // ✅ ONLY filter by dispose
+      const filtered = res.data.data.filter(
+        (lead) => lead.dispose === "Not Interested"
+      );
 
-        setInterestedLeads(filtered);
-      } catch (error) {
-        console.error("Error fetching interested leads:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setInterestedLeads(filtered);
+    } catch (error) {
+      console.error("Error fetching leads:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  if (agentId) {
     fetchLeads();
-  }, []);
+  } else {
+    setLoading(false);
+  }
+}, [agentId]);
+
 
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
@@ -52,25 +59,24 @@ const InterestedLeads = () => {
             </tr>
           </thead>
 
-          <tbody>
-            {interestedLeads.map((item, index) => (
-              <tr key={index}>
-                <td>{item.lead?.Name || "-"}</td>
+         <tbody>
+  {interestedLeads.map((item, index) => (
+    <tr key={item._id || index}>
+      
+      {/* ✅ NAME */}
+      <td>{item.name || "-"}</td>
 
-                <td>
-                  {item.lead?.Phone_1 ||
-                    item.lead?.Phone_Standard_format ||
-                    item.lead?.Phone_From_WEBSITE ||
-                    item.lead?.Phone ||
-                    "-"}
-                </td>
+      {/* ✅ PHONE */}
+      <td>{item.phone || "-"}</td>
 
-                <td>{item.remark || "-"}</td>
-                <td>{item.followUp || "-"}</td>
-                <td>{new Date(item.createdAt).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
+      <td>{item.remark || "-"}</td>
+      <td>{item.followUp || "-"}</td>
+      <td>{new Date(item.createdAt).toLocaleString()}</td>
+
+    </tr>
+  ))}
+</tbody>
+
         </table>
       )}
     </div>

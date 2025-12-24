@@ -5,6 +5,16 @@ import { FaSearch, FaPlus } from "react-icons/fa";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
+/* 🔥 Unicode-safe stable hash */
+const generateLeadHash = (lead) => {
+  const str = JSON.stringify(lead);
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return String(hash);
+};
 
 const SelectedTable = () => {
   const location = useLocation();
@@ -19,14 +29,14 @@ const SelectedTable = () => {
 
   const fileId = location.state?.fileId || localStorage.getItem("fileId");
 
-  // ✅ Fetch saved selected data (columns + leads)
+  /* ✅ Fetch saved leads */
   useEffect(() => {
     const fetchSavedData = async () => {
       try {
-        const res = await fetch(`${BASE_URL}/api/selectedData-Get/${fileId}`
-);
+        const res = await fetch(
+          `${BASE_URL}/api/selectedData-Get/${fileId}`
+        );
         const data = await res.json();
-
         setColumns(data.selectedColumns || []);
         setLeads(data.filteredData || []);
       } catch (err) {
@@ -37,24 +47,22 @@ const SelectedTable = () => {
     if (fileId) fetchSavedData();
   }, [fileId]);
 
-  // ✅ Fetch agents
+  /* ✅ Fetch agents */
   useEffect(() => {
     const fetchAgents = async () => {
-      const res = await fetch(`${BASE_URL}/api/users`
-);
+      const res = await fetch(`${BASE_URL}/api/users`);
       const data = await res.json();
       setAgents(Array.isArray(data) ? data : data.agents || []);
     };
     fetchAgents();
   }, []);
 
-  // ✅ Fetch assigned leads (FULL BLOCK STRUCTURE)
+  /* ✅ Fetch assigned leads */
   const fetchAssignedLeads = async () => {
     try {
-      const res = await fetch(`${BASE_URL}/api/assigned-leads`
-);
+      const res = await fetch(`${BASE_URL}/api/assigned-leads`);
       const data = await res.json();
-      setAssignedDbLeads(data); // ✅ keep full structure
+      setAssignedDbLeads(data);
     } catch (err) {
       console.error("Error fetching assigned leads:", err);
     }
@@ -64,29 +72,17 @@ const SelectedTable = () => {
     fetchAssignedLeads();
   }, []);
 
-  // ✅ Correct Green Tick Logic
-  // ✅ Correct Green Tick Logic (FIXED)
-// ✅ CORRECT Green Tick Logic (NO FALSE TICKS)
-const isLeadAssigned = (lead) => {
-  const leadUniqueId = String(lead?.id || lead?.leadId || lead?.data?.id || "");
+  /* ✅ GREEN TICK LOGIC (FINAL & CORRECT) */
+  const isLeadAssigned = (lead) => {
+    const leadHash = generateLeadHash(lead);
 
-  return assignedDbLeads.some(block =>
-    block.leads.some(l => {
-      const dbLeadId = String(l.leadId);
-      const dbFileId = String(l.sourceFileId);
-
-      // ✅ Normalize DB leadId (remove timestamp part if exists)
-      const normalizedDbLeadId = dbLeadId.includes("_")
-        ? dbLeadId.split("_")[0]
-        : dbLeadId;
-
-      const leadMatch = normalizedDbLeadId === leadUniqueId;
-      const fileMatch = dbFileId === String(fileId);
-
-      return leadMatch && fileMatch;
-    })
-  );
-};
+    return assignedDbLeads.some(block =>
+      block.leads.some(l =>
+        String(l.leadId) === leadHash &&
+        String(l.sourceFileId) === String(fileId)
+      )
+    );
+  };
 
   const handleCheckboxChange = (idx) => {
     setSelectedLeads((prev) =>
@@ -102,23 +98,18 @@ const isLeadAssigned = (lead) => {
     }
   };
 
-  // ✅ Assign Leads
+  /* ✅ Assign Leads */
   const assignLeadsToAgent = async (agentId) => {
     const selectedLeadData = selectedLeads.map(idx => filteredLeads[idx]);
 
     try {
-      const response = await fetch(`${BASE_URL}/api/assign-leads`
-, {
+      const response = await fetch(`${BASE_URL}/api/assign-leads`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           agentId,
           fileId,
-          leads: selectedLeadData.map(l => ({
-            leadId: l.id,
-            sourceFileId: fileId,
-            data: l
-          }))
+          leads: selectedLeadData
         })
       });
 
@@ -126,7 +117,7 @@ const isLeadAssigned = (lead) => {
         alert("Leads assigned successfully!");
         setShowAssignModal(false);
         setSelectedLeads([]);
-        await fetchAssignedLeads(); // ✅ refresh ticks instantly
+        await fetchAssignedLeads(); // 🔥 refresh ticks
       }
     } catch (err) {
       console.error("Assign error:", err);
@@ -155,7 +146,10 @@ const isLeadAssigned = (lead) => {
         </div>
 
         <div className="controls">
-          <button className="manage-columns" onClick={() => setShowAssignModal(true)}>
+          <button
+            className="manage-columns"
+            onClick={() => setShowAssignModal(true)}
+          >
             + Assign Lead
           </button>
           <button className="add-lead-btn">
@@ -167,8 +161,14 @@ const isLeadAssigned = (lead) => {
       {showAssignModal && (
         <div className="modal-overlay">
           <div className="modal-content assign-agent-box">
-            <button className="close-button" onClick={() => setShowAssignModal(false)}>×</button>
+            <button
+              className="close-button"
+              onClick={() => setShowAssignModal(false)}
+            >
+              ×
+            </button>
             <h3 className="assign-title">Assign Lead to Agent</h3>
+
             <div className="agent-list">
               {agents.map((agent) => (
                 <div
@@ -177,8 +177,7 @@ const isLeadAssigned = (lead) => {
                   onClick={() => assignLeadsToAgent(agent._id)}
                 >
                   <img
-                    src={`${BASE_URL}/uploads/${agent?.image}`
-}
+                    src={`${BASE_URL}/uploads/${agent?.image}`}
                     alt={agent.name}
                     className="agent-avatar"
                   />
@@ -189,6 +188,7 @@ const isLeadAssigned = (lead) => {
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       )}
@@ -200,7 +200,10 @@ const isLeadAssigned = (lead) => {
               <th>
                 <input
                   type="checkbox"
-                  checked={selectedLeads.length === filteredLeads.length && filteredLeads.length > 0}
+                  checked={
+                    selectedLeads.length === filteredLeads.length &&
+                    filteredLeads.length > 0
+                  }
                   onChange={handleSelectAll}
                 />
                 <span className="th-all"> Select all</span>
@@ -238,7 +241,6 @@ const isLeadAssigned = (lead) => {
 };
 
 export default SelectedTable;
-
 
 
 
