@@ -25,6 +25,7 @@ import WorkingSession from './AgentsPage/AgentWorking';
 import TotalResolvedLeads from './Admin-Agent-forms/AgentData/TotalResolvedLead';
 import FollowUpLeads from './Admin-Agent-forms/AgentData/FollowUpShowtoadmin';
 import ClosedLeads from './Admin-Agent-forms/AgentData/ClosedUpShowtoadmin';
+import TotalAssigend from './Admin-Agent-forms/AgentData/TotalAssignedLead';
 
 
 function App() {
@@ -70,7 +71,7 @@ function App() {
  <Route path="/working-duration/:id" element={<WorkingSession />} />
  <Route path="/follow-up/:id" element={<FollowUpLeads />} />
 <Route path="/closed-leads/:id" element={<ClosedLeads />} />
-
+<Route path="/total-assigned/:id" element={<TotalAssigend />} />
 
       <Route
           path="/AgentDashboard"
