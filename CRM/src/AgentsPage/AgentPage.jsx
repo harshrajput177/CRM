@@ -10,6 +10,10 @@ const AgentPage = () => {
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
+   const gotoback = () =>{
+    navigate("/allagents")
+  }
+
   useEffect(() => {
     fetchAgents();
   }, []);
@@ -50,7 +54,7 @@ const AgentPage = () => {
             + Add Agent
           </button>
 
-            <button className="backbtn" >Home</button>
+            <button className="backbtn" onClick={gotoback}>Home</button>
           
         </div>
       </div>
