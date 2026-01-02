@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 /* 🔥 CORS */
 app.use(cors({
-  origin: ["http://localhost:5173",  "https://crm-backend-fo3o.onrender.com"],
+  origin: ["http://localhost:5173",  "https://crm-frontend-kvau.onrender.com"],
   credentials: true
 }));
 
