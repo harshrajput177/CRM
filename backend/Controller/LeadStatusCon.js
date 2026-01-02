@@ -6,56 +6,53 @@ const saveLeadStatus = async (req, res) => {
   try {
     const { agentId, leadId, remark, dispose, followUp } = req.body;
 
-    if (!agentId || !leadId || !dispose) {
-      return res.status(400).json({
-        message: "agentId, leadId and dispose are required",
-      });
+    if (!agentId || !leadId) {
+      return res.status(400).json({ message: "agentId and leadId required" });
     }
 
-    // 🔥 STEP 1: get actual lead data from AssignedLead
-    const assigned = await AssignedLead.findOne(
-      { agentId, "leads.leadId": String(leadId) },
-      { "leads.$": 1 }
+    let existing = await LeadStatus.findOne({ agentId, leadId });
+
+    let leadData = {};
+
+    if (!existing) {
+      const assigned = await AssignedLead.findOne(
+        { agentId, "leads.leadId": String(leadId) },
+        { "leads.$": 1 }
+      );
+      leadData = assigned?.leads?.[0]?.data || {};
+    }
+
+    // 🔥 dynamic update object
+    let updateFields = {};
+
+    if (remark !== undefined) updateFields.remark = remark;
+    if (dispose !== undefined) updateFields.dispose = dispose;
+    if (followUp !== undefined) updateFields.followUp = followUp;
+
+    const saved = await LeadStatus.findOneAndUpdate(
+      { agentId, leadId },
+      {
+        $set: updateFields,
+        $setOnInsert: {
+          lead: leadData,
+        },
+      },
+      { upsert: true, new: true }
     );
 
-    const leadData = assigned?.leads?.[0]?.data || {};
+    await AssignedLead.updateOne(
+      { agentId },
+      { $pull: { leads: { leadId: String(leadId) } } }
+    );
 
-    // 🔥 STEP 2: save lead status WITH lead snapshot
-    const saved = await LeadStatus.create({
-      agentId,
-      leadId,
-      lead: leadData,      // ✅ THIS FIXES EVERYTHING
-      remark,
-      dispose,
-      followUp,
-    });
-
-    // ❌ Remove ONLY that lead when closed
-    if (dispose === "Not Interested") {
-      await AssignedLead.updateOne(
-        {
-          agentId,
-          "leads.leadId": String(leadId),
-        },
-        {
-          $pull: {
-            leads: { leadId: String(leadId) }
-          }
-        }
-      );
-    }
-
-    res.json({
-      success: true,
-      message: "Lead status saved successfully",
-      data: saved,
-    });
-
+    res.json({ success: true, data: saved });
   } catch (err) {
-    console.error("saveLeadStatus error:", err);
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 
@@ -76,21 +73,24 @@ const getAllLeadStatus = async (req, res) => {
 
 const updateLeadStatus = async (req, res) => {
   try {
-    const leadId = req.params.id;
+    const statusId = req.params.id;
     const { remark, dispose, followUp } = req.body;
 
-    if (!leadId) {
-      return res.status(400).json({ message: "Lead ID is required" });
+    if (!statusId) {
+      return res.status(400).json({ message: "Status ID is required" });
     }
 
     const updatedLead = await LeadStatus.findByIdAndUpdate(
-      leadId,
+      statusId,
       {
-        remark,
-        dispose,
-        followUp,
+        $set: {
+          remark,
+          dispose,
+          followUp,
+        }
+        // ❌ lead ko haath hi nahi lagaya
       },
-      { new: true } // return updated record
+      { new: true }
     );
 
     if (!updatedLead) {
@@ -115,9 +115,8 @@ const getResolvedLeadsByAgent = async (req, res) => {
   try {
     const { agentId } = req.params;
 
-    // 1️⃣ Get resolved lead statuses
     const resolvedStatuses = await LeadStatus.find({
-      agentId: agentId,
+      agentId,
       $or: [
         { dispose: { $exists: true, $ne: "" } },
         { remark: { $exists: true, $ne: "" } },
@@ -125,26 +124,19 @@ const getResolvedLeadsByAgent = async (req, res) => {
       ]
     }).sort({ createdAt: -1 });
 
-    // 2️⃣ Get assigned leads of agent
-    const assigned = await AssignedLead.findOne({ agentId });
+    // 🔥 YAHAN lagao console.log
+    resolvedStatuses.forEach((status, i) => {
+      // console.log(`SNAPSHOT ${i} 👉`, status.lead);
+    });
 
-    // Safety check
-    if (!assigned) {
-      return res.json({ totalResolved: 0, data: [] });
-    }
-
-    // 3️⃣ Merge data
     const finalLeads = resolvedStatuses.map(status => {
-      const matchedLead = assigned.leads.find(
-        l => String(l.leadId) === String(status.leadId)
-      );
+      const lead = status.lead || {};
 
       return {
         _id: status._id,
         leadId: status.leadId,
-        name: matchedLead?.data?.Name || "N/A",
-        phone: matchedLead?.data?.Phone || "-",
-        email: matchedLead?.data?.Email || "-",
+        name: lead.Name || lead.name || "N/A",
+        phone: lead.Phone || lead.Mobile || "-",
         dispose: status.dispose,
         remark: status.remark,
         followUp: status.followUp,
@@ -162,6 +154,8 @@ const getResolvedLeadsByAgent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 

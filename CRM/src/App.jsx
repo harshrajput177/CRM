@@ -23,6 +23,8 @@ import InterestedLeads from './AgentsPage/Closedlead';
 import AgentDetails from './AgentsPage/AgentDetails';
 import WorkingSession from './AgentsPage/AgentWorking';
 import TotalResolvedLeads from './Admin-Agent-forms/AgentData/TotalResolvedLead';
+import FollowUpLeads from './Admin-Agent-forms/AgentData/FollowUpShowtoadmin';
+import ClosedLeads from './Admin-Agent-forms/AgentData/ClosedUpShowtoadmin';
 
 
 function App() {
@@ -66,6 +68,9 @@ function App() {
          <Route path="/interested-leads" element={<InterestedLeads />} />
         <Route path="/agent-details/:id" element={<AgentDetails />} />
  <Route path="/working-duration/:id" element={<WorkingSession />} />
+ <Route path="/follow-up/:id" element={<FollowUpLeads />} />
+<Route path="/closed-leads/:id" element={<ClosedLeads />} />
+
 
       <Route
           path="/AgentDashboard"

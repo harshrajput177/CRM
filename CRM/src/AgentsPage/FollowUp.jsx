@@ -25,8 +25,12 @@ useEffect(() => {
         `${BASE_URL}/api/resolved-leads/${agentId}`
       );
 
-      // ✅ DIRECTLY SET DATA (NO EXTRA FILTER)
-      setFollowups(res.data.data);
+      // ✅ SAME LOGIC AS FollowUpLeads.jsx
+      const filtered = res.data.data.filter(
+        lead => lead.followUp !== null
+      );
+
+      setFollowups(filtered);
 
     } catch (error) {
       console.error("Error fetching follow-ups:", error);
@@ -35,12 +39,11 @@ useEffect(() => {
     }
   };
 
-  if (agentId) {
-    fetchFollowUps();
-  } else {
-    setLoading(false);
-  }
+  if (agentId) fetchFollowUps();
+  else setLoading(false);
+
 }, [agentId]);
+
 
 
 const openEditModal = (lead) => {
@@ -54,28 +57,41 @@ const openEditModal = (lead) => {
 };
 
 
-  const updateLead = async () => {
-    try {
-      const res = await axios.put(`${BASE_URL}/api/update-lead-status/${currentLead._id}`
-, {
+
+const updateLead = async () => {
+  try {
+    const res = await axios.put(
+      `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
+      {
         remark: editRemark,
         dispose: editDispose,
         followUp: editFollowUp,
-      });
+      }
+    );
 
-      // Update UI instantly
-      setFollowups(followups.map((f) =>
-        f._id === currentLead._id ? res.data.data : f
-      ));
+    // ✅ FIX: old data preserve + sirf updated fields change
+    setFollowups(prev =>
+      prev.map(f =>
+        f._id === currentLead._id
+          ? {
+              ...f, // 👈 name, phone SAFE
+              remark: res.data.data.remark,
+              dispose: res.data.data.dispose,
+              followUp: res.data.data.followUp,
+            }
+          : f
+      )
+    );
 
-      alert("Lead updated successfully!");
-      setShowModal(false);
+    alert("Lead updated successfully!");
+    setShowModal(false);
 
-    } catch (error) {
-      console.error("Update error:", error);
-      alert("Error updating lead.");
-    }
-  };
+  } catch (error) {
+    console.error("Update error:", error);
+    alert("Error updating lead.");
+  }
+};
+
 
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 

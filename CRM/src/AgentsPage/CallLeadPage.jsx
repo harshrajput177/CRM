@@ -101,54 +101,41 @@ const handleFollowUpLead = async () => {
   try {
     await axios.post(`${BASE_URL}/api/save-lead-status`, {
       agentId,
-      leadId: currentLead.leadId,   // ✅ FIXED
-      remark: "Follow up required",
-      dispose: "Interested",        // ✅ REQUIRED
+      leadId: currentLead.leadId,
+      dispose: "Interested",
       followUp,
-    });
-
-    // move lead to end (optional UX logic)
-    setLeads(prev => {
-      const updated = [...prev];
-      const lead = updated.splice(currentIndex, 1)[0];
-      updated.push(lead);
-      return updated;
+      // ❌ remark mat bhejo
     });
 
     setShowStatusMenu(false);
     alert("✅ Follow-up saved");
   } catch (err) {
-    console.error(err.response?.data || err.message);
     alert("❌ Follow-up failed");
   }
 };
 
 
- const handleCloseLead = async () => {
+
+const handleCloseLead = async () => {
   const currentLead = leads[currentIndex];
-
-
-  console.log("cureent lead ",  currentLead )
 
   try {
     await axios.post(`${BASE_URL}/api/save-lead-status`, {
       agentId,
-      leadId: currentLead.leadId,   // ✅ ONLY leadId
-      remark: "Closed by agent",
+      leadId: currentLead.leadId,
       dispose: "Not Interested",
       followUp: null,
+      // ❌ remark mat bhejo
     });
 
-    // ✅ Remove only that lead from UI
     setLeads(prev => prev.filter(l => l.leadId !== currentLead.leadId));
-
     setCurrentIndex(prev => (prev > 0 ? prev - 1 : 0));
     setShowStatusMenu(false);
   } catch (err) {
-    console.error(err);
     alert("❌ Failed to close lead");
   }
 };
+
 
 
   if (leads.length === 0) {

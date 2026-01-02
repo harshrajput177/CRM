@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../Callingleads/AllLeads.css";
 import { FaSearch, FaPlus } from "react-icons/fa";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-/* 🔥 Unicode-safe stable hash */
+
 const generateLeadHash = (lead) => {
   const str = JSON.stringify(lead);
   let hash = 0;
@@ -84,19 +84,56 @@ const SelectedTable = () => {
     );
   };
 
+  
+const handleRoute = useNavigate();
+
+const gotoHome = ()=>{
+  handleRoute("/HRM-Dashboard")
+}
+
+
+    const filteredLeads = leads;
+
+  useEffect(() => {
+  const count = parseInt(searchTerm);
+
+  if (isNaN(count) || count <= 0) {
+    setSelectedLeads([]);
+    return;
+  }
+
+  // ❌ green tick wali hatao
+  const selectableIndexes = filteredLeads
+    .map((lead, idx) =>
+      !isLeadAssigned(lead) ? idx : null
+    )
+    .filter(idx => idx !== null)
+    .slice(0, count); // 🔥 jitna number dala utni leads
+
+  setSelectedLeads(selectableIndexes);
+}, [searchTerm, filteredLeads, assignedDbLeads]);
+
+
   const handleCheckboxChange = (idx) => {
     setSelectedLeads((prev) =>
       prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedLeads.length === filteredLeads.length) {
-      setSelectedLeads([]);
-    } else {
-      setSelectedLeads(filteredLeads.map((_, i) => i));
-    }
-  };
+const handleSelectAll = () => {
+  const selectableIndexes = filteredLeads
+    .map((lead, idx) =>
+      !isLeadAssigned(lead) ? idx : null
+    )
+    .filter(idx => idx !== null);
+
+  if (selectedLeads.length === selectableIndexes.length) {
+    setSelectedLeads([]);
+  } else {
+    setSelectedLeads(selectableIndexes);
+  }
+};
+
 
   /* ✅ Assign Leads */
   const assignLeadsToAgent = async (agentId) => {
@@ -124,27 +161,24 @@ const SelectedTable = () => {
     }
   };
 
-  const filteredLeads = leads.filter((lead) =>
-    columns.some((col) =>
-      String(lead[col] || "")
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-  );
+
+
 
   return (
     <div className="lead-ui-wrapper">
       <div className="lead-topbar">
+
         <div className="search-bar">
           <FaSearch className="icon" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-          />
-        </div>
+       <input
+  type="number"
+  placeholder="Enter number of leads"
+  value={searchTerm}
+  onChange={e => setSearchTerm(e.target.value)}
+/>
 
+        </div>
+<h2>Assign  Lead  to  Agent by  Admin</h2>
         <div className="controls">
           <button
             className="manage-columns"
@@ -155,6 +189,7 @@ const SelectedTable = () => {
           <button className="add-lead-btn">
             <FaPlus /> Add Lead
           </button>
+                  <button className="backbtn"  onClick={gotoHome}>Home</button>
         </div>
       </div>
 

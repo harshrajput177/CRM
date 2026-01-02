@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const WorkingSession = () => {
   const { id } = useParams();
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [sessions, setSessions] = useState([]);
+
+  const navigate = useNavigate();
+
+  const gotoback = () =>{
+    navigate("/allagents")
+  }
 
   useEffect(() => {
     fetchSessions();
@@ -24,6 +30,11 @@ const WorkingSession = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Working Sessions</h2>
+
+                        <br />
+<button className="backbtn"  onClick={gotoback}>back</button>
+<br />
+<br />
 
       <table border="1" width="100%" style={{ marginTop: "20px" }}>
         <thead>

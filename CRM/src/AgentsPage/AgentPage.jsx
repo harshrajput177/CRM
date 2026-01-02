@@ -49,12 +49,15 @@ const AgentPage = () => {
           <button className="add-lead-btn" onClick={() => navigate("/Register")}>
             + Add Agent
           </button>
+
+            <button className="backbtn" >Home</button>
           
         </div>
       </div>
 
       <div className="Allagent-agent-page">
         <h1>Our Agents</h1>
+        
     <div className="Allagent-agent-cards">
   {agents.map((agent, index) => (
     <div

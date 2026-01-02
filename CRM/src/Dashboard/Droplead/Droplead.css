@@ -69,3 +69,13 @@
 .lead-upload-area:hover .upload-icon {
   opacity: 1;
 }
+
+
+.btn-goto-home{
+  padding: 14px  20px;
+  border: none;
+  color: white;
+  background-color: black;
+  border-radius: 24px;
+  cursor: pointer;
+}

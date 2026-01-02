@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const TotalResolvedLeads = () => {
@@ -7,6 +7,13 @@ const TotalResolvedLeads = () => {
   const [leads, setLeads] = useState([]);
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+
+     const navigate = useNavigate();
+
+  const gotoback = () =>{
+    navigate("/allagents")
+  }
 
   useEffect(() => {
     const fetchResolved = async () => {
@@ -22,6 +29,11 @@ const TotalResolvedLeads = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Total Resolved Leads</h2>
+
+                  <br />
+<button className="backbtn"  onClick={gotoback}>back</button>
+<br />
+<br />
 
       {leads.length === 0 ? (
         <p>No resolved leads found</p>

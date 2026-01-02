@@ -12,6 +12,14 @@ const leadStatusSchema = new mongoose.Schema({
       required: true,
       index: true, // fast query
     },
+
+
+      lead: {
+    type: Object,      // pura snapshot
+    default: {},
+  },
+
+  
     
   remark: {
     type: String,

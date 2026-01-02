@@ -13,6 +13,11 @@ const ColumnSelector = ({ selectedFile }) => {
 
   const navigate = useNavigate();
 
+  
+  const gotoHome = ()=>{
+    navigate("/HRM-Dashboard")
+  }
+
   useEffect(() => {
     if (!selectedFile) return;
 
@@ -104,6 +109,9 @@ const submitSelectedColumns = async () => {
     <div className="column-selector">
       <h3>Selected File Columns</h3>
 
+      <button className="backbtn"  onClick={gotoHome}>Home</button>
+      <br />
+<br />
       <table className="column-selector-table">
         <thead>
           <tr>

@@ -84,7 +84,6 @@ const getAllAssignedLeads = async (req, res) => {
 };
 
 
-
 const getAssignedLeads = async (req, res) => {
   try {
     const { agentId } = req.params;
@@ -149,6 +148,5 @@ module.exports = {
   getAssignedLeads,
   getAllAssignedLeads,
   getAssignedLeadsSummary,
-
 };
 

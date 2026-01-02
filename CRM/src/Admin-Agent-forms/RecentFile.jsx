@@ -65,6 +65,14 @@ export default function FileDisplay({ onFileSelect }) {
     }
   };
 
+
+    
+  const handleRoute = useNavigate();
+  
+  const gotoHome = ()=>{
+    handleRoute("/HRM-Dashboard")
+  }
+
   const getFileIcon = (filename) => {
     if (filename.endsWith(".csv")) return <FileSpreadsheet className="file-icon csv-icon" />;
     if (filename.endsWith(".xlsx") || filename.endsWith(".xls"))
@@ -101,6 +109,7 @@ export default function FileDisplay({ onFileSelect }) {
   return (
     <div className="Filecontainer">
       <div className="Fileheader">
+        <button className="backbtn"  onClick={gotoHome}>Home</button>
         <h1 className="Filetitle">All Uploaded Files</h1>
         <div>Total Files: {files.length}</div>
       </div>

@@ -8,13 +8,17 @@ const AgentDetails = () => {
   const navigate = useNavigate();
 
   const [agent, setAgent] = useState(null);
+  
   const [resolvedLeads, setResolvedLeads] = useState([]);
   const [workingSessions, setWorkingSessions] = useState([]);
 
-  const [stats, setStats] = useState({
-    totalAssigned: 0,
-    totalResolved: 0,
-  });
+const [stats, setStats] = useState({
+  totalAssigned: 0,
+  totalResolved: 0,
+  totalFollowUp: 0,
+  totalClosed: 0,
+});
+
 
       const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -28,20 +32,37 @@ const AgentDetails = () => {
         console.error("Error fetching agent:", err);
       }
     };
-
- const fetchResolvedLeads = async () => {
+const fetchResolvedLeads = async () => {
   try {
-   const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
-setResolvedLeads(res.data.data);
-setStats(prev => ({
-  ...prev,
-  totalResolved: res.data.totalResolved
-}));
+    const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
+    const data = res.data.data;
+
+    setResolvedLeads(data);
+
+    // 🔥 SPLIT LOGIC
+    const followUps = data.filter(
+      lead => lead.followUp !== null
+    );
+
+    const closedLeads = data.filter(
+      lead =>
+        lead.dispose &&
+        lead.dispose.toLowerCase() !== "interested" &&
+        lead.followUp === null
+    );
+
+    setStats(prev => ({
+      ...prev,
+      totalResolved: data.length,
+      totalFollowUp: followUps.length,
+      totalClosed: closedLeads.length,
+    }));
 
   } catch (error) {
     console.error("Resolved leads error:", error);
   }
 };
+
 
 
     const fetchWorkingSessions = async () => {
@@ -143,37 +164,35 @@ setStats(prev => ({
           </tbody>
         </table>
 
-        {/* 🔥 UPDATED ROUTABLE STAT-BOXES */}
-        <div className="agent-stats-boxes">
+       <div className="agent-stats-boxes">
 
-          {/* Total Assigned Route */}
-          <div
-            className="stat-box clickable"
-            onClick={() => navigate(`/total-assigned/${id}`)}
-          >
-            <h3>{stats.totalAssigned}</h3>
-            <p>Total Assigned</p>
-          </div>
+  <div className="stat-box clickable" onClick={() => navigate(`/total-assigned/${id}`)}>
+    <h3>{stats.totalAssigned}</h3>
+    <p>Total Assigned</p>
+  </div>
 
-          {/* Total Resolved Route */}
-          <div
-            className="stat-box clickable"
-            onClick={() => navigate(`/total-resolved/${id}`)}
-          >
-            <h3>{stats.totalResolved}</h3>
-            <p>Total Resolved</p>
-          </div>
+  <div className="stat-box clickable" onClick={() => navigate(`/total-resolved/${id}`)}>
+    <h3>{stats.totalResolved}</h3>
+    <p>Total Resolved</p>
+  </div>
 
-          {/* Working Duration Route */}
-          <div
-            className="stat-box clickable"
-            onClick={() => navigate(`/working-duration/${id}`)}
-          >
-            <h4>Working Duration</h4>
-            <p>Check Timing</p>
-          </div>
+  <div className="stat-box clickable" onClick={() => navigate(`/follow-up/${id}`)}>
+    <h3>{stats.totalFollowUp}</h3>
+    <p>Follow Up</p>
+  </div>
 
-        </div>
+  <div className="stat-box clickable" onClick={() => navigate(`/closed-leads/${id}`)}>
+    <h3>{stats.totalClosed}</h3>
+    <p>Closed Lead</p>
+  </div>
+
+  <div className="stat-box clickable" onClick={() => navigate(`/working-duration/${id}`)}>
+    <h4>Working Duration</h4>
+    <p>Check Timing</p>
+  </div>
+
+</div>
+
       </div>
     </div>
   );

@@ -62,109 +62,7 @@ function HRM() {
       <aside className="HRM-sidebar">
         <div className="logo"><img src={img1} alt="" className='gwi-image' /></div>
         <nav className="HRM-sidebar-nav">
-          <ul>
-            <li
-              onClick={() => toggleDropdown('hrm')}
-              className={`dropdown-toggle ${showDropdowns.hrm ? 'active' : ''}`}
-            >
-              <span className='all-drop'>           <span className='icon-text-only'>  <FaUserTie className="HRM-sidebaricon" /> Dashboard</span>
-                {showDropdowns.hrm ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
-              </span>
-              {showDropdowns.hrm && (
-                <ul className="dropdown">
-                  <li onClick={(e) => { e.stopPropagation(); setActivePage('dashboard'); }}>HRM Dashboard</li>
-                  <li onClick={(e) => { e.stopPropagation(); setActivePage('addEmployee'); }}>Add Employee</li>
-                  <li onClick={(e) => e.stopPropagation()}>Designations</li>
-                  <li onClick={(e) => e.stopPropagation()}>Employee leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Admin leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Holidays</li>
-                  <li onClick={(e) => e.stopPropagation()}>Time Sheet</li>
-                  <li onClick={(e) => e.stopPropagation()}>Schedule</li>
-                  <li onClick={(e) => e.stopPropagation()}>Overtime</li>
-                  <li onClick={(e) => e.stopPropagation()}>Warning</li>
-                </ul>
-              )}
-            </li>
-
-            <li onClick={() => toggleDropdown('department')} className={`dropdown-toggle ${showDropdowns.department ? 'active' : ''}`}>
-              <span className='all-drop'>  <span className='icon-text-only'>   <FaUserFriends className="HRM-sidebaricon" /> Department</span>       
-                     {showDropdowns.department ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}</span>
-
-
-              {showDropdowns.department && (
-                <ul className="dropdown">
-
-                  <li onClick={(e) => e.stopPropagation()}>Designations</li>
-                  <li onClick={(e) => e.stopPropagation()}>Employee leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Admin leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Holidays</li>
-                  <li onClick={(e) => e.stopPropagation()}>Time Sheet</li>
-                  <li onClick={(e) => e.stopPropagation()}>Schedule</li>
-                  <li onClick={(e) => e.stopPropagation()}>Overtime</li>
-                  <li onClick={(e) => e.stopPropagation()}>Warning</li>
-                </ul>
-              )}
-            </li>
-
-
-
-
-            <li onClick={() => toggleDropdown('Leaves')} className={`dropdown-toggle ${showDropdowns.Leaves ? 'active' : ''}`}>
-              <span className='all-drop'>  <span className='icon-text-only'>   <FaUserFriends className="HRM-sidebaricon" /> Leaves</span>     
-                       {showDropdowns.Leaves ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}</span>
-
-
-              {showDropdowns.Leaves && (
-                <ul className="dropdown">
-
-                  <li onClick={(e) => e.stopPropagation()}>Designations</li>
-                  <li onClick={(e) => e.stopPropagation()}>Employee leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Admin leaves</li>
-    
-                </ul>
-              )}
-            </li>
-
-
-
-
-
-            <li onClick={() => toggleDropdown('payroll')} className={`dropdown-toggle ${showDropdowns.payroll ? 'active' : ''}`}>
-              <span className='all-drop'>  <span className='icon-text-only'>   <FaDollarSign className="HRM-sidebaricon" />   Payroll</span>              {showDropdowns.payroll ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}</span>
-
-
-              {showDropdowns.payroll && (
-                <ul className="dropdown">
-
-                  <li onClick={(e) => e.stopPropagation()}>Designations</li>
-                  <li onClick={(e) => e.stopPropagation()}>Employee leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Admin leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Holidays</li>
-        
-                </ul>
-              )}
-            </li>
-
-            <li onClick={() => toggleDropdown('attendance')} className={`dropdown-toggle ${showDropdowns.attendance ? 'active' : ''}`}>
-              <span className='all-drop'>  <span className='icon-text-only'><FaCheckCircle className="HRM-sidebaricon" />Employe Attendence</span>              {showDropdowns.department ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}</span>
-
-              {showDropdowns.attendance && (
-                <ul className="dropdown">
-
-                  <li onClick={(e) => e.stopPropagation()}>Designations</li>
-                  <li onClick={(e) => e.stopPropagation()}>Employee leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Admin leaves</li>
-                  <li onClick={(e) => e.stopPropagation()}>Holidays</li>
-   
-                </ul>
-              )}
-            </li>
-
-
-            <li onClick={() => toggleDropdown('setting')} className="dropdown-toggle">
-              <span className='icon-text-only'> <FaCog className="HRM-sidebaricon" /> Setting</span>
-            </li>
-          </ul>
+ 
         </nav>
       </aside>
 
@@ -190,12 +88,7 @@ function HRM() {
                   <FaDollarSign className="icon" />
                  Total Leads
                 </div>
-                <div className="HRMdas-card"
-                  onClick={() => navigate("/selectlead")}>
-                  <FaTasks className="icon" />
-                  Select Title Lead
-
-                </div>
+            
                 <div
                   className="HRMdas-card"
                   style={{ cursor: "pointer" }}

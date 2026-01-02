@@ -6,6 +6,8 @@ import uploadIcon from "../../Images/upload-icon-18.jpg";
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
+
+
 const FileUploader = () => {
   const [items, setItems] = useState([]); // [{id, file, status, progress, errorMsg}]
   const [pendingUploads, setPendingUploads] = useState(0); // track outstanding uploads
@@ -101,6 +103,13 @@ const FileUploader = () => {
     }
   };
 
+  
+const handleRoute = useNavigate();
+
+const gotoHome = ()=>{
+  handleRoute("/HRM-Dashboard")
+}
+
   const updateItem = (id, patch) => {
     setItems((prev) =>
       prev.map((it) => (it.id === id ? { ...it, ...patch } : it))
@@ -111,6 +120,10 @@ const FileUploader = () => {
 
   return (
     <div className="lead-file-uploader">
+      <button className="btn-goto-home" onClick={gotoHome}>Home</button>
+
+      <br />
+      <br />
       <div
         className="lead-upload-area"
         onDrop={handleFileDrop}
