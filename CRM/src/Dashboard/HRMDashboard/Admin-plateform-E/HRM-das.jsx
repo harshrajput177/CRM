@@ -44,6 +44,10 @@ function HRM() {
 
   const navigate = useNavigate();
 
+  const handleLogout = () =>{
+    navigate("/")
+  }
+
 
   // Timer effect
   useEffect(() => {
@@ -70,6 +74,10 @@ function HRM() {
         <header className="navbar">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <h2>Hello 👋</h2>
+          </div>
+
+               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <button  className='button-logout'   onClick={handleLogout}>Logout</button>
           </div>
         </header>
 
