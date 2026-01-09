@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "./FollowUp.css"
+import "./FollowUp.css";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 
 const FollowUpSheet = () => {
   const [followups, setFollowups] = useState([]);
   const [loading, setLoading] = useState(true);
   const agentId = localStorage.getItem("agentId");
-
 
   // Modal States
   const [showModal, setShowModal] = useState(false);
@@ -18,124 +16,121 @@ const FollowUpSheet = () => {
   const [editDispose, setEditDispose] = useState("");
   const [editFollowUp, setEditFollowUp] = useState("");
 
-useEffect(() => {
-  const fetchFollowUps = async () => {
+  // ================= FETCH FOLLOW UPS =================
+  useEffect(() => {
+    const fetchFollowUps = async () => {
+      try {
+        const res = await axios.get(
+          `${BASE_URL}/api/resolved-leads/${agentId}`
+        );
+
+        // sirf followUp wali leads
+        const filtered = res.data.data.filter(
+          lead => lead.followUp !== null
+        );
+
+        setFollowups(filtered);
+      } catch (error) {
+        console.error("Error fetching follow-ups:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (agentId) fetchFollowUps();
+else setLoading(false);
+
+  }, [agentId]);
+
+  const openEditModal = (lead) => {
+    setCurrentLead(lead);
+    setEditRemark(lead.remark ?? "");
+    setEditDispose(lead.dispose ?? "");
+    setEditFollowUp(
+      lead.followUp ? lead.followUp.split("T")[0] : ""
+    );
+    setShowModal(true);
+  };
+
+  // ================= FOLLOW UP UPDATE =================
+  const handleFollowUpUpdate = async () => {
+    if (!editRemark || !editFollowUp || !editDispose) {
+      alert("Remark, Dispose & Follow-up date required");
+      return;
+    }
+
     try {
-      const res = await axios.get(
-        `${BASE_URL}/api/resolved-leads/${agentId}`
+      const res = await axios.put(
+        `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
+        {
+          remark: editRemark,
+          dispose: editDispose,      // ✅ ANY VALUE ALLOWED
+          followUp: editFollowUp,    // ✅ REQUIRED
+        }
       );
 
-      // ✅ SAME LOGIC AS FollowUpLeads.jsx
-      const filtered = res.data.data.filter(
-        lead => lead.followUp !== null
+      // same row update
+      setFollowups(prev =>
+        prev.map(f =>
+          f._id === currentLead._id
+            ? {
+                ...f,
+                remark: res.data.data.remark,
+                dispose: res.data.data.dispose,
+                followUp: res.data.data.followUp,
+              }
+            : f
+        )
       );
 
-      setFollowups(filtered);
-
-    } catch (error) {
-      console.error("Error fetching follow-ups:", error);
-    } finally {
-      setLoading(false);
+      alert("✅ Follow-up updated");
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Update failed");
     }
   };
 
-  if (agentId) fetchFollowUps();
-  else setLoading(false);
+  // ================= CLOSE LEAD =================
+  const handleCloseLead = async () => {
+    if (!editRemark) {
+      alert("Remark required");
+      return;
+    }
 
-}, [agentId]);
+    try {
+      await axios.put(
+        `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
+        {
+          remark: editRemark,
+          dispose: "Closed",   // 🔥 dispose irrelevant here
+          followUp: null,      // 🔥 FOLLOW UP REMOVE
+        }
+      );
 
+      // follow-up sheet se hata do
+      setFollowups(prev =>
+        prev.filter(f => f._id !== currentLead._id)
+      );
 
-
-const openEditModal = (lead) => {
-  setCurrentLead(lead);
-  setEditRemark(lead.remark ?? "");
-  setEditDispose(lead.dispose ?? "");
-  setEditFollowUp(
-    lead.followUp ? lead.followUp.split("T")[0] : ""
-  );
-  setShowModal(true);
-};
-
-
-const handleFollowUpUpdate = async () => {
-  if (!editRemark || !editFollowUp) {
-    alert("Remark & Follow-up date required");
-    return;
-  }
-
-  try {
-    const res = await axios.put(
-      `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
-      {
-        remark: editRemark,
-        dispose: "Interested",
-        followUp: editFollowUp,
-      }
-    );
-
-    // 🔥 same row update, list me rahe
-    setFollowups(prev =>
-      prev.map(f =>
-        f._id === currentLead._id
-          ? {
-              ...f,
-              remark: res.data.data.remark,
-              dispose: res.data.data.dispose,
-              followUp: res.data.data.followUp,
-            }
-          : f
-      )
-    );
-
-    alert("✅ Follow-up updated");
-    setShowModal(false);
-
-  } catch (err) {
-    alert("❌ Update failed");
-  }
-};
-
-
-
-const handleCloseLead = async () => {
-  if (!editRemark) {
-    alert("Remark required");
-    return;
-  }
-
-  try {
-    await axios.put(
-      `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
-      {
-        remark: editRemark,
-        dispose: "Not Interested",
-        followUp: null,
-      }
-    );
-
-    // 🔥 follow-up sheet se hata do
-    setFollowups(prev =>
-      prev.filter(f => f._id !== currentLead._id)
-    );
-
-    alert("❌ Lead closed");
-    setShowModal(false);
-
-  } catch (err) {
-    alert("❌ Close failed");
-  }
-};
-
+      alert("❌ Lead Closed");
+      setShowModal(false);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Close failed");
+    }
+  };
 
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
   return (
-    <div style={{ padding: "30px" }}   className="followup-container">
+    <div className="followup-container" style={{ padding: "30px" }}>
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
         📋 Follow-Up Sheet
       </h1>
 
-      <table  className="followup-table"
+      <table
+        className="followup-table"
         border="1"
         width="100%"
         cellPadding="10"
@@ -152,45 +147,38 @@ const handleCloseLead = async () => {
           </tr>
         </thead>
 
-  <tbody>
-  {followups.map((item, index) => (
-    <tr key={item._id || index} onClick={() => openEditModal(item)}>
-
-      {/* ✅ NAME */}
-      <td>{item.name || "-"}</td>
-
-      {/* ✅ PHONE */}
-      <td>{item.phone || "-"}</td>
-
-      <td>{item.remark || "-"}</td>
-      <td>{item.dispose || "-"}</td>
-      <td>{item.followUp || "-"}</td>
-      <td>{new Date(item.createdAt).toLocaleString()}</td>
-
-    </tr>
-  ))}
-</tbody>
-
+        <tbody>
+          {followups.map((item, index) => (
+            <tr key={item._id || index} onClick={() => openEditModal(item)}>
+              <td>{item.name || "-"}</td>
+              <td>{item.phone || "-"}</td>
+              <td>{item.remark || "-"}</td>
+              <td>{item.dispose || "-"}</td>
+              <td>{item.followUp || "-"}</td>
+              <td>{new Date(item.createdAt).toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
       </table>
 
-      {/* Edit Modal */}
+      {/* ================= MODAL ================= */}
       {showModal && (
         <div className="Follow-modal-overlay">
-    <div className="Follow-modal-box">
+          <div className="Follow-modal-box">
             <h3>Edit Lead</h3>
 
             <label>Remark:</label>
             <textarea
-              style={{ width: "100%", marginBottom: "10px" }}
               value={editRemark}
               onChange={(e) => setEditRemark(e.target.value)}
+              style={{ width: "100%", marginBottom: "10px" }}
             />
 
             <label>Dispose:</label>
             <select
-              style={{ width: "100%", marginBottom: "10px" }}
               value={editDispose}
               onChange={(e) => setEditDispose(e.target.value)}
+              style={{ width: "100%", marginBottom: "10px" }}
             >
               <option value="">-- Select --</option>
               <option value="Ringing">Ringing</option>
@@ -202,37 +190,33 @@ const handleCloseLead = async () => {
             <label>Follow Up Date:</label>
             <input
               type="date"
-              style={{ width: "100%" }}
               value={editFollowUp}
               onChange={(e) => setEditFollowUp(e.target.value)}
+              style={{ width: "100%" }}
             />
+            <br />
 
-            <div style={{ marginTop: "15px", textAlign: "right" }}>
-              <button    className="modal-btn cancel" onClick={() => setShowModal(false)}
-                style={{ marginRight: "10px" }}>
+            <div className="modal-actions">
+              <button className="modal-btn follow" onClick={handleFollowUpUpdate}>
+                Follow Up
+              </button>
+
+<br />
+<br />
+              <button className="modal-btn close" onClick={handleCloseLead}>
+                Close Lead
+              </button> &nbsp;  &nbsp;  &nbsp;  &nbsp;
+
+              <button
+                className="modal-btn cancel"
+                onClick={() => setShowModal(false)}
+              >
                 Cancel
               </button>
-              <br />
-                <br />
-<div className="modal-actions">
-  <button className="modal-btn follow" onClick={handleFollowUpUpdate}>
-    Follow Up
-  </button>
-
-  <br />
-  <br />
-
-  <button className="modal-btn close" onClick={handleCloseLead}>
-    Close Lead
-  </button>
-</div>
-
             </div>
-
           </div>
         </div>
       )}
-
     </div>
   );
 };
