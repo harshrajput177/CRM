@@ -44,10 +44,6 @@ const leadsArray = Array.isArray(res.data.leads)
   }, [agentId]);
 
   const handleNextLead = () => {
-    if (!savedLeads[currentIndex]) {
-      alert("❗ Please save remark & dispose before next lead");
-      return;
-    }
     if (currentIndex < leads.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setShowCalendar(false);
@@ -92,6 +88,12 @@ const handleSaveRemark = async () => {
 const handleFollowUpLead = async () => {
   const currentLead = leads[currentIndex];
   const followUp = followUps[currentIndex];
+  const remark = remarks[currentIndex];
+
+  if (!remark) {
+    alert("Remark required");
+    return;
+  }
 
   if (!followUp) {
     alert("Select follow-up date");
@@ -102,12 +104,16 @@ const handleFollowUpLead = async () => {
     await axios.post(`${BASE_URL}/api/save-lead-status`, {
       agentId,
       leadId: currentLead.leadId,
+      remark,
       dispose: "Interested",
       followUp,
-      // ❌ remark mat bhejo
     });
 
+    // current lead remove
+    setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+    setCurrentIndex(0);
     setShowStatusMenu(false);
+
     alert("✅ Follow-up saved");
   } catch (err) {
     alert("❌ Follow-up failed");
@@ -115,26 +121,34 @@ const handleFollowUpLead = async () => {
 };
 
 
-
 const handleCloseLead = async () => {
   const currentLead = leads[currentIndex];
+  const remark = remarks[currentIndex];
+
+  if (!remark) {
+    alert("Remark required");
+    return;
+  }
 
   try {
     await axios.post(`${BASE_URL}/api/save-lead-status`, {
       agentId,
       leadId: currentLead.leadId,
+      remark,
       dispose: "Not Interested",
       followUp: null,
-      // ❌ remark mat bhejo
     });
 
-    setLeads(prev => prev.filter(l => l.leadId !== currentLead.leadId));
-    setCurrentIndex(prev => (prev > 0 ? prev - 1 : 0));
+    setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+    setCurrentIndex(0);
     setShowStatusMenu(false);
+
+    alert("❌ Lead closed");
   } catch (err) {
     alert("❌ Failed to close lead");
   }
 };
+
 
 
 
@@ -225,10 +239,7 @@ const handleCloseLead = async () => {
           )}
         </div>
 
-        {/* Save */}
-        <button className="btn btn-save" onClick={handleSaveRemark}>
-          Save Remark & Dispose
-        </button>
+   
 
         {/* Status */}
         <button

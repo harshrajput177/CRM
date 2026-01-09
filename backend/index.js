@@ -2,9 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const path = require("path");
 const dotenv = require("dotenv");
-const multer = require('multer');
-const xlsx = require('xlsx');
-const fs = require('fs');
 const cookieParser = require("cookie-parser");
 
 const authRoutes = require("./routes/LoginRoute");
@@ -30,6 +27,8 @@ app.use(cors({
   origin: ["http://localhost:5173",  "https://crm-frontend-kvau.onrender.com"],
   credentials: true
 }));
+
+
 
 /* Static */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

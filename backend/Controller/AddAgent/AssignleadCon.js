@@ -71,7 +71,6 @@ const assignLeadsToAgent = async (req, res) => {
 };
 
 
-
 const getAllAssignedLeads = async (req, res) => {
   const data = await AssignedLead.find();
 

@@ -57,24 +57,28 @@ const openEditModal = (lead) => {
 };
 
 
+const handleFollowUpUpdate = async () => {
+  if (!editRemark || !editFollowUp) {
+    alert("Remark & Follow-up date required");
+    return;
+  }
 
-const updateLead = async () => {
   try {
     const res = await axios.put(
       `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
       {
         remark: editRemark,
-        dispose: editDispose,
+        dispose: "Interested",
         followUp: editFollowUp,
       }
     );
 
-    // ✅ FIX: old data preserve + sirf updated fields change
+    // 🔥 same row update, list me rahe
     setFollowups(prev =>
       prev.map(f =>
         f._id === currentLead._id
           ? {
-              ...f, // 👈 name, phone SAFE
+              ...f,
               remark: res.data.data.remark,
               dispose: res.data.data.dispose,
               followUp: res.data.data.followUp,
@@ -83,12 +87,42 @@ const updateLead = async () => {
       )
     );
 
-    alert("Lead updated successfully!");
+    alert("✅ Follow-up updated");
     setShowModal(false);
 
-  } catch (error) {
-    console.error("Update error:", error);
-    alert("Error updating lead.");
+  } catch (err) {
+    alert("❌ Update failed");
+  }
+};
+
+
+
+const handleCloseLead = async () => {
+  if (!editRemark) {
+    alert("Remark required");
+    return;
+  }
+
+  try {
+    await axios.put(
+      `${BASE_URL}/api/update-lead-status/${currentLead._id}`,
+      {
+        remark: editRemark,
+        dispose: "Not Interested",
+        followUp: null,
+      }
+    );
+
+    // 🔥 follow-up sheet se hata do
+    setFollowups(prev =>
+      prev.filter(f => f._id !== currentLead._id)
+    );
+
+    alert("❌ Lead closed");
+    setShowModal(false);
+
+  } catch (err) {
+    alert("❌ Close failed");
   }
 };
 
@@ -178,10 +212,21 @@ const updateLead = async () => {
                 style={{ marginRight: "10px" }}>
                 Cancel
               </button>
+              <br />
+                <br />
+<div className="modal-actions">
+  <button className="modal-btn follow" onClick={handleFollowUpUpdate}>
+    Follow Up
+  </button>
 
-              <button className="modal-btn save" onClick={updateLead} style={{ background: "green", color: "white" }}>
-                Save
-              </button>
+  <br />
+  <br />
+
+  <button className="modal-btn close" onClick={handleCloseLead}>
+    Close Lead
+  </button>
+</div>
+
             </div>
 
           </div>

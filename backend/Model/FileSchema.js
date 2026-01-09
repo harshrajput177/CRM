@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const FileSchema = new mongoose.Schema({
   filename: String,
-  filepath: String,
+  fileUrl: String,
   filetype: String,
   filesize: Number,
 }, { timestamps: true });
