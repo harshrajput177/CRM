@@ -58,41 +58,33 @@ const leadsArray = Array.isArray(res.data.leads)
   };
 
 
-const handleFollowUpLead = async () => {
+
+  const handleFollowUpLead = async () => {
   const currentLead = leads[currentIndex];
   const remark = remarks[currentIndex];
   const dispose = disposals[currentIndex];
   const followUp = followUps[currentIndex];
 
-  if (!remark) {
-    alert("⚠️ Remark required");
+  if (!remark || !dispose) {
+    alert("Remark & Dispose required");
     return;
   }
 
-  if (!dispose) {
-    alert("⚠️ Dispose required");
-    return;
-  }
+  // 🔥 YAHI LINE IMPORTANT HAI
+  // followUp OPTIONAL hai, dispose se koi relation nahi
+  await axios.post(`${BASE_URL}/api/save-lead-status`, {
+    agentId,
+    leadId: currentLead.leadId,
+    remark,
+    dispose,                 // ✅ EXACT USER VALUE
+    followUp: followUp || null,
+  });
 
-  try {
-    await axios.post(`${BASE_URL}/api/save-lead-status`, {
-      agentId,
-      leadId: currentLead.leadId,
-      remark,
-      dispose,        // 🔥 EXACT USER VALUE
-      followUp: followUp || null,
-    });
-
-    setLeads(prev => prev.filter((_, i) => i !== currentIndex));
-    setCurrentIndex(0);
-    setShowStatusMenu(false);
-
-    alert("✅ Lead saved");
-  } catch (err) {
-    console.error(err);
-    alert("❌ Save failed");
-  }
+  setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+  setCurrentIndex(0);
+  setShowStatusMenu(false);
 };
+
 
 
 
