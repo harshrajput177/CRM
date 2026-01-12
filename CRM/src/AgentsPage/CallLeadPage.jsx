@@ -57,46 +57,20 @@ const leadsArray = Array.isArray(res.data.leads)
     }
   };
 
-const handleSaveRemark = async () => {
+
+const handleFollowUpLead = async () => {
   const currentLead = leads[currentIndex];
   const remark = remarks[currentIndex];
   const dispose = disposals[currentIndex];
   const followUp = followUps[currentIndex];
 
-  if (!remark || !dispose) {
-    alert("⚠️ Remark & Dispose required");
-    return;
-  }
-
-  try {
-    await axios.post(`${BASE_URL}/api/save-lead-status`, {
-      agentId,
-      leadId: currentLead.leadId,   // ✅ FIXED
-      remark,
-      dispose,
-      followUp: followUp || null,
-    });
-
-    setSavedLeads(prev => ({ ...prev, [currentIndex]: true }));
-    alert("✅ Lead saved");
-  } catch (err) {
-    console.error(err.response?.data || err.message);
-    alert("❌ Save failed");
-  }
-};
-
-const handleFollowUpLead = async () => {
-  const currentLead = leads[currentIndex];
-  const followUp = followUps[currentIndex];
-  const remark = remarks[currentIndex];
-
   if (!remark) {
-    alert("Remark required");
+    alert("⚠️ Remark required");
     return;
   }
 
-  if (!followUp) {
-    alert("Select follow-up date");
+  if (!dispose) {
+    alert("⚠️ Dispose required");
     return;
   }
 
@@ -105,28 +79,35 @@ const handleFollowUpLead = async () => {
       agentId,
       leadId: currentLead.leadId,
       remark,
-      dispose: "Interested",
-      followUp,
+      dispose,        // 🔥 EXACT USER VALUE
+      followUp: followUp || null,
     });
 
-    // current lead remove
     setLeads(prev => prev.filter((_, i) => i !== currentIndex));
     setCurrentIndex(0);
     setShowStatusMenu(false);
 
-    alert("✅ Follow-up saved");
+    alert("✅ Lead saved");
   } catch (err) {
-    alert("❌ Follow-up failed");
+    console.error(err);
+    alert("❌ Save failed");
   }
 };
+
 
 
 const handleCloseLead = async () => {
   const currentLead = leads[currentIndex];
   const remark = remarks[currentIndex];
+  const dispose = disposals[currentIndex]; // 🔥 USER VALUE
 
   if (!remark) {
-    alert("Remark required");
+    alert("⚠️ Remark required");
+    return;
+  }
+
+  if (!dispose) {
+    alert("⚠️ Dispose required");
     return;
   }
 
@@ -135,7 +116,7 @@ const handleCloseLead = async () => {
       agentId,
       leadId: currentLead.leadId,
       remark,
-      dispose: "Not Interested",
+      dispose,        // 🔥 EXACT VALUE
       followUp: null,
     });
 
@@ -145,9 +126,11 @@ const handleCloseLead = async () => {
 
     alert("❌ Lead closed");
   } catch (err) {
-    alert("❌ Failed to close lead");
+    console.error(err);
+    alert("❌ Close failed");
   }
 };
+
 
 
 
