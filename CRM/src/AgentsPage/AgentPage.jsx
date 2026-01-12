@@ -11,7 +11,7 @@ const AgentPage = () => {
 
 
    const gotoback = () =>{
-    navigate("/allagents")
+    navigate("/HRM-Dashboard")
   }
 
   useEffect(() => {

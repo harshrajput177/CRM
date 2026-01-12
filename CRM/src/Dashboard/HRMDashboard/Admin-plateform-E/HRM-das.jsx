@@ -109,7 +109,7 @@ function HRM() {
                   style={{ cursor: "pointer" }}
                   onClick={() => navigate("/allagents")}>
                    <FaUserFriends className="icon" />
-                  Total Agent: 151
+                  Total Agent
                 </div>
                 <div className="HRMdas-card" onClick={() => navigate("/leadtable")}>
                 
