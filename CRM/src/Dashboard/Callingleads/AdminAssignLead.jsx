@@ -5,7 +5,7 @@ import { FaSearch, FaPlus } from "react-icons/fa";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
+/* 🔥 OLD DATA SUPPORT (HASH) */
 const generateLeadHash = (lead) => {
   const str = JSON.stringify(lead);
   let hash = 0;
@@ -16,8 +16,18 @@ const generateLeadHash = (lead) => {
   return String(hash);
 };
 
+/* 🔥 MOBILE NORMALIZATION (MOST IMPORTANT) */
+const normalizeMobile = (mobile) => {
+  return String(mobile || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/\.0$/, "")
+    .replace(/^(\+91)/, "");
+};
+
 const SelectedTable = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [leads, setLeads] = useState([]);
   const [columns, setColumns] = useState([]);
@@ -31,181 +41,149 @@ const SelectedTable = () => {
 
   /* ✅ Fetch saved leads */
   useEffect(() => {
-    const fetchSavedData = async () => {
-      try {
-        const res = await fetch(
-          `${BASE_URL}/api/selectedData-Get/${fileId}`
-        );
-        const data = await res.json();
+    if (!fileId) return;
+
+    fetch(`${BASE_URL}/api/selectedData-Get/${fileId}`)
+      .then(res => res.json())
+      .then(data => {
         setColumns(data.selectedColumns || []);
         setLeads(data.filteredData || []);
-      } catch (err) {
-        console.error("Error fetching leads:", err);
-      }
-    };
-
-    if (fileId) fetchSavedData();
+      })
+      .catch(err => console.error("Fetch leads error:", err));
   }, [fileId]);
 
   /* ✅ Fetch agents */
   useEffect(() => {
-    const fetchAgents = async () => {
-      const res = await fetch(`${BASE_URL}/api/users`);
-      const data = await res.json();
-      setAgents(Array.isArray(data) ? data : data.agents || []);
-    };
-    fetchAgents();
+    fetch(`${BASE_URL}/api/users`)
+      .then(res => res.json())
+      .then(data => {
+        setAgents(Array.isArray(data) ? data : data.agents || []);
+      });
   }, []);
 
   /* ✅ Fetch assigned leads */
   const fetchAssignedLeads = async () => {
-    try {
-      const res = await fetch(`${BASE_URL}/api/assigned-leads`);
-      const data = await res.json();
-      setAssignedDbLeads(data);
-    } catch (err) {
-      console.error("Error fetching assigned leads:", err);
-    }
+    const res = await fetch(`${BASE_URL}/api/assigned-leads`);
+    const data = await res.json();
+    setAssignedDbLeads(data);
   };
 
   useEffect(() => {
     fetchAssignedLeads();
   }, []);
 
-  /* ✅ GREEN TICK LOGIC (FINAL & CORRECT) */
+
+
   const isLeadAssigned = (lead) => {
-    const leadHash = generateLeadHash(lead);
+  const mobile = normalizeMobile(lead.Mobile);
 
-    return assignedDbLeads.some(block =>
-      block.leads.some(l =>
-        String(l.leadId) === leadHash &&
-        String(l.sourceFileId) === String(fileId)
-      )
-    );
-  };
+  return assignedDbLeads.some(block =>
+    block.leads.some(l => {
+      const dbMobile = normalizeMobile(
+        l.data?.Mobile || l.leadId   // 🔥 OLD + NEW BOTH
+      );
 
-  
-const handleRoute = useNavigate();
-
-const gotoHome = ()=>{
-  handleRoute("/HRM-Dashboard")
-}
+      return dbMobile === mobile;
+    })
+  );
+};
 
 
-    const filteredLeads = leads;
+  const filteredLeads = leads;
 
+  /* =========================
+     ✅ AUTO SELECT BY NUMBER
+  ========================= */
   useEffect(() => {
-  const count = parseInt(searchTerm);
+    const count = parseInt(searchTerm);
 
-  if (isNaN(count) || count <= 0) {
-    setSelectedLeads([]);
-    return;
-  }
+    if (isNaN(count) || count <= 0) {
+      setSelectedLeads([]);
+      return;
+    }
 
-  // ❌ green tick wali hatao
-  const selectableIndexes = filteredLeads
-    .map((lead, idx) =>
-      !isLeadAssigned(lead) ? idx : null
-    )
-    .filter(idx => idx !== null)
-    .slice(0, count); // 🔥 jitna number dala utni leads
+    const selectableIndexes = filteredLeads
+      .map((lead, idx) => !isLeadAssigned(lead) ? idx : null)
+      .filter(idx => idx !== null)
+      .slice(0, count);
 
-  setSelectedLeads(selectableIndexes);
-}, [searchTerm, filteredLeads, assignedDbLeads]);
-
+    setSelectedLeads(selectableIndexes);
+  }, [searchTerm, filteredLeads, assignedDbLeads]);
 
   const handleCheckboxChange = (idx) => {
-    setSelectedLeads((prev) =>
+    setSelectedLeads(prev =>
       prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]
     );
   };
 
-const handleSelectAll = () => {
+  /* =========================
+     ✅ SELECT ALL FIXED
+  ========================= */
   const selectableIndexes = filteredLeads
-    .map((lead, idx) =>
-      !isLeadAssigned(lead) ? idx : null
-    )
+    .map((lead, idx) => !isLeadAssigned(lead) ? idx : null)
     .filter(idx => idx !== null);
 
-  if (selectedLeads.length === selectableIndexes.length) {
-    setSelectedLeads([]);
-  } else {
-    setSelectedLeads(selectableIndexes);
-  }
-};
-
-
-  /* ✅ Assign Leads */
-  const assignLeadsToAgent = async (agentId) => {
-    const selectedLeadData = selectedLeads.map(idx => filteredLeads[idx]);
-
-    try {
-      const response = await fetch(`${BASE_URL}/api/assign-leads`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          agentId,
-          fileId,
-          leads: selectedLeadData
-        })
-      });
-
-      if (response.ok) {
-        alert("Leads assigned successfully!");
-        setShowAssignModal(false);
-        setSelectedLeads([]);
-        await fetchAssignedLeads(); // 🔥 refresh ticks
-      }
-    } catch (err) {
-      console.error("Assign error:", err);
+  const handleSelectAll = () => {
+    if (selectedLeads.length === selectableIndexes.length) {
+      setSelectedLeads([]);
+    } else {
+      setSelectedLeads(selectableIndexes);
     }
   };
 
+  /* =========================
+     ✅ ASSIGN LEADS
+  ========================= */
+  const assignLeadsToAgent = async (agentId) => {
+    const selectedLeadData = selectedLeads.map(idx => filteredLeads[idx]);
 
+    const response = await fetch(`${BASE_URL}/api/assign-leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ agentId, fileId, leads: selectedLeadData })
+    });
 
+    if (response.ok) {
+      alert("Leads assigned successfully!");
+      setShowAssignModal(false);
+      setSelectedLeads([]);
+      fetchAssignedLeads();
+    }
+  };
 
   return (
     <div className="lead-ui-wrapper">
       <div className="lead-topbar">
-
         <div className="search-bar">
           <FaSearch className="icon" />
-       <input
-  type="number"
-  placeholder="Enter number of leads"
-  value={searchTerm}
-  onChange={e => setSearchTerm(e.target.value)}
-/>
-
+          <input
+            type="number"
+            placeholder="Enter number of leads"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+          />
         </div>
-<h2>Assign  Lead  to  Agent by  Admin</h2>
+
+        <h2>Assign Lead to Agent by Admin</h2>
+
         <div className="controls">
-          <button
-            className="manage-columns"
-            onClick={() => setShowAssignModal(true)}
-          >
+          <button onClick={() => setShowAssignModal(true)}>
             + Assign Lead
           </button>
-          <button className="add-lead-btn">
-            <FaPlus /> Add Lead
+          <button onClick={() => navigate("/HRM-Dashboard")}>
+            Home
           </button>
-                  <button className="backbtn"  onClick={gotoHome}>Home</button>
         </div>
       </div>
 
       {showAssignModal && (
         <div className="modal-overlay">
           <div className="modal-content assign-agent-box">
-            <button
-              className="close-button"
-              onClick={() => setShowAssignModal(false)}
-            >
-              ×
-            </button>
-            <h3 className="assign-title">Assign Lead to Agent</h3>
+            <button className="close-button" onClick={() => setShowAssignModal(false)}>×</button>
+            <h3>Assign Lead to Agent</h3>
 
             <div className="agent-list">
-              {agents.map((agent) => (
+              {agents.map(agent => (
                 <div
                   key={agent._id}
                   className="agent-card"
@@ -214,16 +192,14 @@ const handleSelectAll = () => {
                   <img
                     src={`${BASE_URL}/uploads/${agent?.image}`}
                     alt={agent.name}
-                    className="agent-avatar"
                   />
-                  <div className="agent-info">
+                  <div>
                     <h4>{agent.name}</h4>
-                    <p>{agent.email || "No email"}</p>
+                    <p>{agent.email}</p>
                   </div>
                 </div>
               ))}
             </div>
-
           </div>
         </div>
       )}
@@ -236,15 +212,15 @@ const handleSelectAll = () => {
                 <input
                   type="checkbox"
                   checked={
-                    selectedLeads.length === filteredLeads.length &&
-                    filteredLeads.length > 0
+                    selectableIndexes.length > 0 &&
+                    selectedLeads.length === selectableIndexes.length
                   }
                   onChange={handleSelectAll}
                 />
-                <span className="th-all"> Select all</span>
+                Select All
               </th>
-              {columns.map((head, i) => (
-                <th key={i}>{head}</th>
+              {columns.map((col, i) => (
+                <th key={i}>{col}</th>
               ))}
             </tr>
           </thead>
@@ -276,6 +252,7 @@ const handleSelectAll = () => {
 };
 
 export default SelectedTable;
+
 
 
 
