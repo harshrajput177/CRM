@@ -113,24 +113,25 @@ const updateLeadStatus = async (req, res) => {
 const getResolvedLeadsByAgent = async (req, res) => {
   try {
     const { agentId } = req.params;
+    const { type } = req.query;
 
-    const resolvedStatuses = await LeadStatus.find({
-      agentId,
-      $or: [
-        { dispose: { $exists: true, $ne: "" } },
-        { remark: { $exists: true, $ne: "" } },
-        { followUp: { $exists: true, $ne: null } }
-      ]
-    }).sort({ createdAt: -1 });
+    // 🔹 Base query (ALL leads of agent)
+    let query = { agentId };
 
-    // 🔥 YAHAN lagao console.log
-    resolvedStatuses.forEach((status, i) => {
-      // console.log(`SNAPSHOT ${i} 👉`, status.lead);
-    });
+    // 🔹 Explicit filters (ONLY if type provided)
+    if (type === "followup") {
+      query.followUp = { $ne: null };
+    }
+
+    if (type === "closed") {
+      query.followUp = null;
+    }
+
+    const resolvedStatuses = await LeadStatus.find(query)
+      .sort({ createdAt: -1 });
 
     const finalLeads = resolvedStatuses.map(status => {
       const lead = status.lead || {};
-
       return {
         _id: status._id,
         leadId: status.leadId,
@@ -144,15 +145,18 @@ const getResolvedLeadsByAgent = async (req, res) => {
     });
 
     res.status(200).json({
-      totalResolved: finalLeads.length,
+      total: finalLeads.length,
       data: finalLeads
     });
 
-  } catch (error) {
-    console.error("Resolved Leads Error:", error);
+  } catch (err) {
+    console.error("Resolved Leads Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+module.exports = { getResolvedLeadsByAgent };
+
 
 
 

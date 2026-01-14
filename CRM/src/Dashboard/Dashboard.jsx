@@ -135,7 +135,7 @@ useEffect(() => {
       const closed = res.data.data.filter(
         (item) =>
           item.agentId === agentId &&
-          item.dispose === "Not Interested"
+          item.followUp === null   // ✅ ONLY THIS MATTERS
       );
 
       setClosedLeadCount(closed.length);
@@ -146,6 +146,7 @@ useEffect(() => {
 
   fetchClosedLeads();
 }, [agentId]);
+
 
 
 

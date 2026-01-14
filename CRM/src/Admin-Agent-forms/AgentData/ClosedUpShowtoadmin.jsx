@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 const ClosedLeads = () => {
   const { id } = useParams();
+    console.log("API ID:", id);
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
   const [leads, setLeads] = useState([]);
@@ -21,9 +22,10 @@ const ClosedLeads = () => {
   const fetchClosedLeads = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/resolved-leads/${id}`
-      );
+  `${BASE_URL}/api/resolved-leads/${id}?type=closed`
 
+      );
+        console.log("API ID:", id); // ClosedLeads
       // ✅ NO FILTER
       setLeads(res.data.data || []);
     } catch (err) {

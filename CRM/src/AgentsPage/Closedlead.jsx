@@ -15,9 +15,11 @@ useEffect(() => {
   const fetchLeads = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/resolved-leads/${agentId}`
-      );
+  `${BASE_URL}/api/resolved-leads/${agentId}?type=closed`
 
+
+      );
+console.log("API ID:", agentId); 
       // ✅ NO FILTER
       setInterestedLeads(res.data.data || []);
     } catch (error) {
