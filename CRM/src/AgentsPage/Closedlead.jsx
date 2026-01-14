@@ -18,12 +18,8 @@ useEffect(() => {
         `${BASE_URL}/api/resolved-leads/${agentId}`
       );
 
-      // ✅ ONLY filter by dispose
-      const filtered = res.data.data.filter(
-        (lead) => lead.dispose === "Not Interested"
-      );
-
-      setInterestedLeads(filtered);
+      // ✅ NO FILTER
+      setInterestedLeads(res.data.data || []);
     } catch (error) {
       console.error("Error fetching leads:", error);
     } finally {
@@ -31,12 +27,10 @@ useEffect(() => {
     }
   };
 
-  if (agentId) {
-    fetchLeads();
-  } else {
-    setLoading(false);
-  }
+  if (agentId) fetchLeads();
+  else setLoading(false);
 }, [agentId]);
+
 
 
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;

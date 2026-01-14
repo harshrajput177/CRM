@@ -17,28 +17,25 @@ const ClosedLeads = () => {
     navigate("/allagents")
   }
 
-  useEffect(() => {
-    const fetchClosedLeads = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
+ useEffect(() => {
+  const fetchClosedLeads = async () => {
+    try {
+      const res = await axios.get(
+        `${BASE_URL}/api/resolved-leads/${id}`
+      );
 
-        const closed = res.data.data.filter(
-          lead =>
-            lead.dispose &&
-            lead.dispose.toLowerCase() !== "interested" &&
-            lead.followUp === null
-        );
+      // ✅ NO FILTER
+      setLeads(res.data.data || []);
+    } catch (err) {
+      console.error("Closed leads error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        setLeads(closed);
-      } catch (err) {
-        console.error("Closed leads error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  fetchClosedLeads();
+}, [id]);
 
-    fetchClosedLeads();
-  }, [id]);
 
   if (loading) return <h3>Loading Closed Leads...</h3>;
 
