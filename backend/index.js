@@ -12,7 +12,7 @@ const selectedColumnsRoutes = require("./routes/SelectedData");
 const asignleadRoutes = require("./routes/Assignlead");
 const leadStatusRoutes = require("./routes/LeadStatusRout");
 const WorkSessionRoute = require("./routes/WorkSessionRoute");
-const restoreRoute = require("./routes/restore");
+
 
 dotenv.config();
 connectDB();
@@ -45,7 +45,7 @@ app.use("/api", fileRoutes);
 app.use("/api", selectedColumnsRoutes);
 app.use("/api", leadStatusRoutes);
 app.use("/api", WorkSessionRoute);
-app.use("/api" , restoreRoute)
+
 
 /* Test */
 app.get("/", (req, res) => {
