@@ -81,13 +81,7 @@ const assignLeadsToAgent = async (req, res) => {
 
 const getAllAssignedLeads = async (req, res) => {
   const data = await AssignedLead.find();
-
-  const filtered = data.map(doc => ({
-    ...doc.toObject(),
-    leads: doc.leads.filter(lead => lead.status !== "closed")
-  }));
-
-  res.json(filtered);
+  res.json(data);
 };
 
 
@@ -101,15 +95,12 @@ const getAssignedLeads = async (req, res) => {
       return res.json({ leads: [] });
     }
 
-    // ❌ closed leads hata do
-    const filteredLeads = assigned.leads.filter(
-      lead => lead.status !== "closed"
-    );
 
-    res.json({
-      agentId: assigned.agentId,
-      leads: filteredLeads
-    });
+  res.json({
+  agentId: assigned.agentId,
+  leads: assigned.leads   // 🔥 ALWAYS ALL
+});
+
 
   } catch (error) {
     console.error("Error fetching assigned leads:", error);

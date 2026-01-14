@@ -2,6 +2,7 @@ const mongoose = require("mongoose")
 const AssignedLead = require("../Model/Assignlead");
 const LeadStatus = require("../Model/LeadStatus");
 
+
 const saveLeadStatus = async (req, res) => {
   try {
     const { agentId, leadId, remark, dispose, followUp } = req.body;
@@ -14,6 +15,7 @@ const saveLeadStatus = async (req, res) => {
 
     let leadData = {};
 
+    // 🔥 snapshot only first time
     if (!existing) {
       const assigned = await AssignedLead.findOne(
         { agentId, "leads.leadId": String(leadId) },
@@ -22,9 +24,7 @@ const saveLeadStatus = async (req, res) => {
       leadData = assigned?.leads?.[0]?.data || {};
     }
 
-    // 🔥 dynamic update object
     let updateFields = {};
-
     if (remark !== undefined) updateFields.remark = remark;
     if (dispose !== undefined) updateFields.dispose = dispose;
     if (followUp !== undefined) updateFields.followUp = followUp;
@@ -34,23 +34,22 @@ const saveLeadStatus = async (req, res) => {
       {
         $set: updateFields,
         $setOnInsert: {
-          lead: leadData,
+          lead: leadData, // 🔒 snapshot preserved
         },
       },
       { upsert: true, new: true }
     );
 
-    await AssignedLead.updateOne(
-      { agentId },
-      { $pull: { leads: { leadId: String(leadId) } } }
-    );
+    // ❌ AssignedLead se kuch bhi remove mat karo
 
     res.json({ success: true, data: saved });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
