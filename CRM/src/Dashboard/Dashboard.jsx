@@ -27,14 +27,10 @@ const Dashboard = () => {
   const [followUpCount, setFollowUpCount] = useState(0);
   const [closedLeadCount, setClosedLeadCount] = useState(0);
 
-
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
   const navigate = useNavigate();
-
-
-  const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 
   useEffect(() => {
   const agentId = localStorage.getItem("agentId");
@@ -80,9 +76,9 @@ useEffect(() => {
   const fetchAssignedCount = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/assigned-leads/${agentId}`
+  `${BASE_URL}/api/assigned-leads/${agentId}?view=all`
+);
 
-      );
 
       console.log("Assigned Leads Response:", res.data);
 
@@ -146,9 +142,6 @@ useEffect(() => {
 
   fetchClosedLeads();
 }, [agentId]);
-
-
-
 
 
   const formatTime = (seconds) => {
@@ -333,14 +326,6 @@ useEffect(() => {
 
       <main className="Dashboard-tesg-content">
         <header className="Dashboard-tesg-topbar">
-          <div className="Dashboard-search-container">
-            <SearchIcon className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="Dashboard-tesg-search-bar"
-            />
-          </div>
 
           <div className="Dashboard-tesg-profile">
             <p>Time: {formatTime(time)}</p>
@@ -349,6 +334,11 @@ useEffect(() => {
       </button>
       <button className="btn-logout" onClick={handleLogout}>Logout</button>
           </div>
+
+          
+<button onClick={() => navigate("/notifications")}>
+  🔔
+</button>
         </header>
 
         <section className="Dashboard-tesg-summary-cards">

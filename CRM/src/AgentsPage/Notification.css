@@ -1,0 +1,129 @@
+/* Page wrapper */
+.notifications-page {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Page title */
+.notifications-page h2 {
+  margin-bottom: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Notification card */
+.notification-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px 18px;
+  margin-bottom: 15px;
+  border-left: 5px solid #2563eb; /* blue accent */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect */
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Name */
+.notification-card h4 {
+  margin: 0 0 8px;
+  font-size: 17px;
+  color: #111827;
+}
+
+/* Mobile text */
+.notification-card p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Date */
+.notification-card small {
+  display: inline-block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Empty state */
+.notifications-page p {
+  font-size: 15px;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 40px;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .notifications-page {
+    padding: 15px;
+  }
+
+  .notification-card {
+    padding: 14px;
+  }
+
+  .notification-card h4 {
+    font-size: 16px;
+  }
+
+  .notification-card p {
+    font-size: 13px;
+  }
+}
+
+
+.notif-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.notif-modal-box {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.modal-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-btn.follow {
+  background: #2563eb;
+  color: #fff;
+}
+
+.modal-btn.close {
+  background: #dc2626;
+  color: #fff;
+}
+
+.modal-btn.cancel {
+  margin-top: 10px;
+  background: #6b7280;
+  color: #fff;
+  width: 100%;
+}

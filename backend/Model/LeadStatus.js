@@ -7,33 +7,35 @@ const leadStatusSchema = new mongoose.Schema({
     required: true,
   },
 
-    leadId: {
+  leadId: {
       type: String,
       required: true,
       index: true, // fast query
-    },
+  },
 
-
-      lead: {
-    type: Object,      // pura snapshot
+  lead: {
+    type: Object,    
     default: {},
   },
 
-  
-    
   remark: {
     type: String,
     default: "",
   },
+
   dispose: {
     type: String,
     enum: ["", "Ringing", "Interested", "Not Interested", "Other"],
     default: "",
   },
+
+
   followUp: {
     type: Date,
     default: null,
   },
+
+
   createdAt: {
     type: Date,
     default: Date.now,

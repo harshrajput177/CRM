@@ -1,5 +1,5 @@
 const AssignedLead = require("../../Model/Assignlead");
-
+const LeadStatus = require("../../Model/LeadStatus")
 
 // 🔥 SAME LOGIC FRONTEND + BACKEND
 const normalizeMobile = (mobile) =>
@@ -88,6 +88,7 @@ const getAllAssignedLeads = async (req, res) => {
 const getAssignedLeads = async (req, res) => {
   try {
     const { agentId } = req.params;
+    const { view } = req.query; // 👈 "work" | "all"
 
     const assigned = await AssignedLead.findOne({ agentId });
 
@@ -95,18 +96,41 @@ const getAssignedLeads = async (req, res) => {
       return res.json({ leads: [] });
     }
 
+    // 🔵 CASE 1: Agent wants ALL assigned leads (history view)
+    if (view === "all") {
+      return res.json({
+        agentId: assigned.agentId,
+        total: assigned.leads.length,
+        leads: assigned.leads,
+      });
+    }
 
-  res.json({
-  agentId: assigned.agentId,
-  leads: assigned.leads   // 🔥 ALWAYS ALL
-});
+    // 🔴 CASE 2: Agent wants ONLY pending leads (call work)
+    const processedStatuses = await LeadStatus.find(
+      { agentId },
+      { leadId: 1 }
+    );
 
+    const processedLeadIds = new Set(
+      processedStatuses.map(s => String(s.leadId))
+    );
+
+    const pendingLeads = assigned.leads.filter(
+      l => !processedLeadIds.has(String(l.leadId))
+    );
+
+    return res.json({
+      agentId: assigned.agentId,
+      total: pendingLeads.length,
+      leads: pendingLeads,
+    });
 
   } catch (error) {
-    console.error("Error fetching assigned leads:", error);
+    console.error("Assigned Leads Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 

@@ -1,59 +1,86 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 const AssignedLead = require("../Model/Assignlead");
 const LeadStatus = require("../Model/LeadStatus");
-
+const Notification = require("../Model/Notification");
 
 const saveLeadStatus = async (req, res) => {
   try {
     const { agentId, leadId, remark, dispose, followUp } = req.body;
 
     if (!agentId || !leadId) {
-      return res.status(400).json({ message: "agentId and leadId required" });
+      return res
+        .status(400)
+        .json({ message: "agentId and leadId required" });
     }
 
     let existing = await LeadStatus.findOne({ agentId, leadId });
 
     let leadData = {};
 
-    // 🔥 snapshot only first time
+    // 🔒 Snapshot only first time
     if (!existing) {
       const assigned = await AssignedLead.findOne(
         { agentId, "leads.leadId": String(leadId) },
         { "leads.$": 1 }
       );
+
       leadData = assigned?.leads?.[0]?.data || {};
     }
 
-    let updateFields = {};
+    const updateFields = {};
     if (remark !== undefined) updateFields.remark = remark;
     if (dispose !== undefined) updateFields.dispose = dispose;
     if (followUp !== undefined) updateFields.followUp = followUp;
 
+if (followUp) {
+  const followUpDate = new Date(followUp);
+
+  const alreadyExists = await Notification.findOne({
+    agentId,
+    leadId,
+    followUpDate,
+  });
+
+  if (!alreadyExists) {
+    await Notification.create({
+      agentId,
+      leadId,
+
+      // 🔥 EXACT KEYS (tumhare data ke hisaab se)
+      contactName: leadData?.Name || "Unknown",
+      contactNumber: leadData?.Mobile || "N/A",
+
+      followUpDate,
+    });
+  }
+}
+
+
+
+  
+
+
+    // ✅ Save / Update Lead Status
     const saved = await LeadStatus.findOneAndUpdate(
       { agentId, leadId },
       {
         $set: updateFields,
         $setOnInsert: {
-          lead: leadData, // 🔒 snapshot preserved
+          lead: leadData, // 🔒 snapshot preserved forever
         },
       },
       { upsert: true, new: true }
     );
 
-    // ❌ AssignedLead se kuch bhi remove mat karo
-
-    res.json({ success: true, data: saved });
-
+    res.status(200).json({
+      success: true,
+      data: saved,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Save lead status error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
-
-
-
-
 
 
 const getAllLeadStatus = async (req, res) => {
@@ -154,13 +181,5 @@ const getResolvedLeadsByAgent = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
-module.exports = { getResolvedLeadsByAgent };
-
-
-
-
-
-
 
 module.exports = { saveLeadStatus , getAllLeadStatus,  updateLeadStatus, getResolvedLeadsByAgent};

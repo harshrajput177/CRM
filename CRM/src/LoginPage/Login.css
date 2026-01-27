@@ -16,6 +16,18 @@
   background: #fff;
 }
 
+.Tesg-login-button.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+/* disabled sirf click ke liye, style ke liye nahi */
+.Tesg-login-button:disabled {
+  pointer-events: none;
+}
+
+
+
 /* Left Side */
 .Login-left {
   flex: 1;

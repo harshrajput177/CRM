@@ -19,17 +19,18 @@ const CallLeadsPage = () => {
     const fetchLeads = async () => {
       try {
         const res = await axios.get(
-          `${BASE_URL}/api/assigned-leads/${agentId}`
-        );
+  `${BASE_URL}/api/assigned-leads/${agentId}?view=work`
+);
 
-const leadsArray = Array.isArray(res.data.leads)
-  ? res.data.leads.map(l => ({
-      leadId: l.leadId,
-      sourceFileId: l.sourceFileId,
-      assignedAt: l.assignedAt,
-      data: l.data || {}        // ✅ FIX
-    }))
-  : [];
+
+        const leadsArray = Array.isArray(res.data.leads)
+          ? res.data.leads.map(l => ({
+            leadId: l.leadId,
+            sourceFileId: l.sourceFileId,
+            assignedAt: l.assignedAt,
+            data: l.data || {}        // ✅ FIX
+          }))
+          : [];
 
 
 
@@ -58,70 +59,83 @@ const leadsArray = Array.isArray(res.data.leads)
   };
 
 
-
   const handleFollowUpLead = async () => {
-  const currentLead = leads[currentIndex];
-  const remark = remarks[currentIndex];
-  const dispose = disposals[currentIndex];
-  const followUp = followUps[currentIndex];
+    const currentLead = leads[currentIndex];
+    const remark = remarks[currentIndex];
+    const dispose = disposals[currentIndex];
+    const followUp = followUps[currentIndex];
 
-  if (!remark || !dispose) {
-    alert("Remark & Dispose required");
-    return;
-  }
+    // 🔒 HARD VALIDATION
+    if (!remark) {
+      alert("⚠️ Remark required");
+      return;
+    }
 
-  // 🔥 YAHI LINE IMPORTANT HAI
-  // followUp OPTIONAL hai, dispose se koi relation nahi
-  await axios.post(`${BASE_URL}/api/save-lead-status`, {
-    agentId,
-    leadId: currentLead.leadId,
-    remark,
-    dispose,                 // ✅ EXACT USER VALUE
-    followUp: followUp || null,
-  });
+    if (!dispose) {
+      alert("⚠️ Dispose required");
+      return;
+    }
 
-  setLeads(prev => prev.filter((_, i) => i !== currentIndex));
-  setCurrentIndex(0);
-  setShowStatusMenu(false);
-};
+    if (!followUp) {
+      alert("⚠️ Follow-up date required");
+      return;
+    }
 
+    try {
+      await axios.post(`${BASE_URL}/api/save-lead-status`, {
+        agentId,
+        leadId: currentLead.leadId,
+        remark,
+        dispose,
+        followUp,
+      });
 
+      // ✅ ONLY AFTER SUCCESS → remove lead
+      setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+      setCurrentIndex(0);
+      setShowStatusMenu(false);
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to save follow-up");
+    }
+  };
 
+  const handleCloseLead = async () => {
+    const currentLead = leads[currentIndex];
+    const remark = remarks[currentIndex];
+    const dispose = disposals[currentIndex];
 
-const handleCloseLead = async () => {
-  const currentLead = leads[currentIndex];
-  const remark = remarks[currentIndex];
-  const dispose = disposals[currentIndex]; // 🔥 USER VALUE
+    if (!remark) {
+      alert("⚠️ Remark required");
+      return;
+    }
 
-  if (!remark) {
-    alert("⚠️ Remark required");
-    return;
-  }
+    if (!dispose) {
+      alert("⚠️ Dispose required");
+      return;
+    }
 
-  if (!dispose) {
-    alert("⚠️ Dispose required");
-    return;
-  }
+    try {
+      await axios.post(`${BASE_URL}/api/save-lead-status`, {
+        agentId,
+        leadId: currentLead.leadId,
+        remark,
+        dispose,
+        followUp: null,
+      });
 
-  try {
-    await axios.post(`${BASE_URL}/api/save-lead-status`, {
-      agentId,
-      leadId: currentLead.leadId,
-      remark,
-      dispose,        // 🔥 EXACT VALUE
-      followUp: null,
-    });
+      // ✅ ONLY AFTER SUCCESS
+      setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+      setCurrentIndex(0);
+      setShowStatusMenu(false);
 
-    setLeads(prev => prev.filter((_, i) => i !== currentIndex));
-    setCurrentIndex(0);
-    setShowStatusMenu(false);
+      alert("❌ Lead closed");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Close failed");
+    }
+  };
 
-    alert("❌ Lead closed");
-  } catch (err) {
-    console.error(err);
-    alert("❌ Close failed");
-  }
-};
 
 
 
@@ -142,21 +156,21 @@ const handleCloseLead = async () => {
 
       <div className="lead-card-page">
         {/* Lead Details */}
-  
 
-  <div className="lead-details">
-  <h3>Lead Details</h3>
 
-  <div className="lead-grid">
-    {leads[currentIndex]?.data &&
-      Object.entries(leads[currentIndex].data).map(([key, value]) => (
-        <div className="lead-field" key={key}>
-          <strong>{key}:</strong>
-          <div>{String(value)}</div>
+        <div className="lead-details">
+          <h3>Lead Details</h3>
+
+          <div className="lead-grid">
+            {leads[currentIndex]?.data &&
+              Object.entries(leads[currentIndex].data).map(([key, value]) => (
+                <div className="lead-field" key={key}>
+                  <strong>{key}:</strong>
+                  <div>{String(value)}</div>
+                </div>
+              ))}
+          </div>
         </div>
-      ))}
-  </div>
-</div>
 
 
 
@@ -214,7 +228,7 @@ const handleCloseLead = async () => {
           )}
         </div>
 
-   
+
 
         {/* Status */}
         <button
@@ -226,12 +240,29 @@ const handleCloseLead = async () => {
 
         {showStatusMenu && (
           <div className="status-menu">
-            <button className="status-follow" onClick={handleFollowUpLead}>
+            <button
+              className="status-follow"
+              disabled={
+                !remarks[currentIndex] ||
+                !disposals[currentIndex] ||
+                !followUps[currentIndex]
+              }
+              onClick={handleFollowUpLead}
+            >
               Follow Up
             </button>
-            <button className="status-close" onClick={handleCloseLead}>
+
+            <button
+              className="status-close"
+              disabled={
+                !remarks[currentIndex] ||
+                !disposals[currentIndex]
+              }
+              onClick={handleCloseLead}
+            >
               Close Lead
             </button>
+
           </div>
         )}
       </div>

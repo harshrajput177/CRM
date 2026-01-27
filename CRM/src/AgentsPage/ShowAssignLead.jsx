@@ -14,8 +14,9 @@ const AssignedLeadsPage = () => {
     const fetchAssigned = async () => {
       try {
         const res = await axios.get(
-          `${BASE_URL}/api/assigned-leads/${agentId}`
-        );
+  `${BASE_URL}/api/assigned-leads/${agentId}?view=all`
+);
+
 
         const leadsArray = Array.isArray(res.data.leads)
           ? res.data.leads.map(l => ({

@@ -13,9 +13,14 @@ function Login() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+const [agentLoading, setAgentLoading] = useState(false);
+const [adminLoading, setAdminLoading] = useState(false);
+
+
   const navigate = useNavigate();
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 
 const handleLogin = async (event, type) => {
   event.preventDefault();
@@ -25,51 +30,38 @@ const handleLogin = async (event, type) => {
     return;
   }
 
-  // --- STEP 1: Get GEO Location ---
+  // 🔒 Role-wise loading start
+  type === "agent" ? setAgentLoading(true) : setAdminLoading(true);
+
   let latitude = null;
   let longitude = null;
 
   try {
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve) => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           latitude = pos.coords.latitude;
           longitude = pos.coords.longitude;
           resolve();
         },
-        (err) => {
-          console.warn("Location Permission Denied:", err);
-          resolve(); // Continue without location
-        }
+        () => resolve()
       );
     });
-  } catch (e) {
-    console.error("Geo Error:", e);
-  }
 
-  try {
-    // --- STEP 2: Choose correct API URL ---
     const url =
       type === "agent"
         ? `${BASE_URL}/api/agent-login`
         : `${BASE_URL}/api/admin-login`;
 
-    // --- STEP 3: Send login + location info ---
-    const response = await axios.post(
-      url,
-      { 
-        userId: username, 
-        password, 
-        rememberMe,
-        latitude,         // ⬅ backend ko jaa raha hai
-        longitude         // ⬅ backend ko jaa raha hai
-      },
-      { headers: { "Content-Type": "application/json" } }
-    );
+    const response = await axios.post(url, {
+      userId: username,
+      password,
+      rememberMe,
+      latitude,
+      longitude,
+    });
 
     if (response.status === 200) {
-      console.log("Login Successful:", response.data);
-
       if (type === "agent") {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("agentId", response.data.user.id);
@@ -79,10 +71,13 @@ const handleLogin = async (event, type) => {
       }
     }
   } catch (error) {
-    console.error("Login Error:", error.response?.data || error.message);
-    toast.error(error.response?.data?.message || "Server error ❌");
+    toast.error(error.response?.data?.message || "Login failed ❌");
+  } finally {
+    // 🔓 Role-wise loading stop
+    type === "agent" ? setAgentLoading(false) : setAdminLoading(false);
   }
 };
+
 
 
 
@@ -131,22 +126,30 @@ const handleLogin = async (event, type) => {
             </label>
 
             <div className="login-buttons">
-            <button
+<button
   type="button"
-  className="Tesg-login-button agent-btn"
+  className={`Tesg-login-button agent-btn ${
+    agentLoading ? "loading" : ""
+  }`}
   onClick={(e) => handleLogin(e, "agent")}
+  disabled={agentLoading}
 >
-  Login Agent
+  {agentLoading ? "Logging Agent..." : "Login Agent"}
+</button>
+
+<button
+  type="button"
+  className={`Tesg-login-button admin-btn ${
+    adminLoading ? "loading" : ""
+  }`}
+  onClick={(e) => handleLogin(e, "admin")}
+  disabled={adminLoading}
+>
+  {adminLoading ? "Logging Admin..." : "Login Admin"}
 </button>
 
 
-              <button
-                type="submit"
-                className="Tesg-login-button admin-btn"
-                onClick={(e) => handleLogin(e, "admin")}
-              >
-                Login Admin
-              </button>
+
             </div>
           </form>
         </div>

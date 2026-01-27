@@ -2,19 +2,15 @@ import React, { useEffect, useState } from 'react';
 import '../../../Styles-CSS/HRM-CSS/HRM-das.css';
 import img1 from '../../../Images/GWI-LOGO.png'
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
 
 import {
   FaUsers,
   FaUserCheck,
-  FaTasks,
   FaCheckCircle,
   FaUserFriends,
   FaDollarSign,
-  FaBriefcase,
-  FaUserTie,
-  FaCog,
-  FaChevronDown,
-  FaChevronUp
 } from 'react-icons/fa';
 
 
@@ -32,6 +28,9 @@ function HRM() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [secondsWorked, setSecondsWorked] = useState(0); // ⬅ Work timer
   const [onBreak, setOnBreak] = useState(false);
+  const [hoverDate, setHoverDate] = useState(null);
+const [attendance, setAttendance] = useState([]);
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
 
 
@@ -47,6 +46,21 @@ function HRM() {
   const handleLogout = () =>{
     navigate("/")
   }
+
+
+  const handleDateHover = async (dateStr) => {
+  setHoverDate(dateStr);
+
+  try {
+    const res = await axios.get(
+      `http://localhost:5000/api/attendance/${dateStr}`
+    );
+    setAttendance(res.data || []);
+  } catch (err) {
+    console.error("Attendance fetch error", err);
+    setAttendance([]);
+  }
+};
 
 
   // Timer effect
@@ -112,21 +126,59 @@ function HRM() {
                   Total Agent
                 </div>
                 <div className="HRMdas-card" onClick={() => navigate("/leadtable")}>
-                
                       <FaUserCheck className="icon" />
                   Assign Lead
                 </div>
-             
               </div>
-
-
-          
             </>
           )}
 
           {activePage === 'addEmployee' && <EmployeeDirectory />}
         </div>
       </div>
+
+      {/* ================= CALENDAR + ATTENDANCE ================= */}
+<div className="attendance-wrapper">
+  <h3>📅 Attendance Calendar</h3>
+
+  <div className="calendar-grid">
+    {Array.from({ length: 31 }, (_, i) => {
+      const day = i + 1;
+      const dateStr = `2026-01-${String(day).padStart(2, "0")}`;
+
+      return (
+        <div
+          key={day}
+          className="calendar-day"
+          onMouseEnter={() => handleDateHover(dateStr)}
+        >
+          {day}
+        </div>
+      );
+    })}
+  </div>
+
+  {/* ================= USER STATUS PANEL ================= */}
+  {hoverDate && (
+    <div className="attendance-panel">
+      <h4>👥 Users on {hoverDate}</h4>
+
+      {attendance.length === 0 ? (
+        <p>No data</p>
+      ) : (
+        attendance.map((u, i) => (
+          <div key={i} className={`user-row ${u.status}`}>
+            <span>{u.name}</span>
+            <span>
+              {u.status === "online" ? "🟢 Online" : "🔴 Offline"}
+            </span>
+          </div>
+        ))
+      )}
+    </div>
+  )}
+</div>
+
     </div>
   );
 }

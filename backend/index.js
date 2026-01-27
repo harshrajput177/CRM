@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require("path");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
-
+const notificationRoutes = require("./routes/NotificationRoute")
 const authRoutes = require("./routes/LoginRoute");
 const adminauthroute = require("./routes/adminRoute");
 const connectDB = require('./Config/db');
@@ -37,7 +37,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 /* Cookies */
 app.use(cookieParser());
 
-/* Routes */
+
 app.use("/api", authRoutes);
 app.use("/api", adminauthroute);
 app.use("/api", asignleadRoutes);
@@ -45,7 +45,7 @@ app.use("/api", fileRoutes);
 app.use("/api", selectedColumnsRoutes);
 app.use("/api", leadStatusRoutes);
 app.use("/api", WorkSessionRoute);
-
+app.use("/api", notificationRoutes);
 
 /* Test */
 app.get("/", (req, res) => {

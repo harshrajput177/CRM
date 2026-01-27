@@ -141,58 +141,12 @@ height: auto;
 .Dashboard-tesg-topbar {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 80px;
 }
 
 .Dashboard-search-container input{
   padding: 12px;
 }
-
-.Dashboard-search-container {
-  color: #000000;
-  background-color: white;
-  position: relative;  
-  max-width: 30%;             /* Makes the container a reference point */
-  width: 350px;                     /* Matches input width */
-  border: none;
-}
-
-.Dashboard-tesg-search-bar {
-  padding: 12px 12px 12px 40px;     /* Adds left padding for the icon */
-  width: 100%;  
-  border: none; 
-  text-align: center;                   /* Takes full container width */
-  border-radius: 5px;               /* Optional rounded corners */
-  box-shadow: 1px 2px  4px  rgba(236, 236, 236, 0.226);
-}
-
-.Dashboard-search-container input[type="text"]:focus{
-    text-align: center;
-    border-color: #b0aaaab4;
-    outline: none;
-}
-
-.Dashboard-tesg-search-bar::placeholder {
-  color: gray;
-  text-align: center;                     /* Placeholder text color */
-  font-size: 14px;                  /* Placeholder text size */
-  line-height: 40px;                /* Matches input height to center vertically */
-}
-
-.search-icon {
-  position: absolute;               /* Positions icon inside input */
-  left: 10px;                       /* Distance from the left edge */
-  top: 50%;                         /* Center vertically */
-  transform: translateY(-50%);      /* Adjusts alignment */
-  color: rgb(87, 87, 87);                      /* Icon color */
-  cursor: pointer;             /* Prevents interaction with the icon */              /* Icon size */
-}
-
-
-.Dashboard-tesg-search-bar.active{
-  border: 1px solid #444;
-}
-
 
 .Dashboard-tesg-summary-cards {
   max-width: 1100px;

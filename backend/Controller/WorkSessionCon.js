@@ -72,3 +72,47 @@ exports.getAgentSessions = async (req, res) => {
     res.status(500).json({ message: "Error fetching sessions", error: err.message });
   }
 };
+
+
+exports.getAttendanceByDate = async (req, res) => {
+  try {
+    const { date } = req.params; // "2026-01-27"
+
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    // 1️⃣ Us date ke sessions
+    const sessions = await WorkSession.find({
+      startTime: { $gte: start, $lte: end },
+    }).populate("agentId", "name");
+
+    // 2️⃣ Sab agents
+    const agents = await User.find(
+      { role: "user" },
+      { name: 1 }
+    );
+
+    // 3️⃣ Online agents set
+    const onlineSet = new Set(
+      sessions
+        .filter(s => s.endTime === null)
+        .map(s => String(s.agentId._id))
+    );
+
+    // 4️⃣ Final response
+    const result = agents.map(a => ({
+      name: a.name,
+      status: onlineSet.has(String(a._id)) ? "online" : "offline",
+    }));
+
+    res.status(200).json(result);
+
+  } catch (err) {
+    console.error("Attendance error:", err);
+    res.status(500).json({ message: "Error fetching attendance" });
+  }
+};
+

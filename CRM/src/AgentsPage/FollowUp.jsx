@@ -155,7 +155,8 @@ else setLoading(false);
               <td>{item.remark || "-"}</td>
               <td>{item.dispose || "-"}</td>
               <td>{item.followUp || "-"}</td>
-              <td>{new Date(item.createdAt).toLocaleString()}</td>
+             <td>{new Date(item.createdAt).toLocaleString("en-IN")}</td>
+
             </tr>
           ))}
         </tbody>
