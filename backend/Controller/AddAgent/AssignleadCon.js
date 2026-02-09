@@ -165,10 +165,75 @@ const getAssignedLeadsSummary = async (req, res) => {
 };
 
 
+// 🔥 Agent manually adds a lead inside his assigned leads
+const addManualAssignedLead = async (req, res) => {
+  try {
+    const { agentId, name, number, location } = req.body;
+
+    if (!agentId || !name || !number) {
+      return res.status(400).json({
+        message: "agentId, name and number required"
+      });
+    }
+
+    const normalizedMobile = normalizeMobile(number);
+
+    let record = await AssignedLead.findOne({ agentId });
+
+    if (!record) {
+      record = new AssignedLead({
+        agentId,
+        leads: []
+      });
+    }
+
+    // ❌ Duplicate check (same agent)
+    const alreadyExists = record.leads.some(
+      l => String(l.leadId) === String(normalizedMobile)
+    );
+
+    if (alreadyExists) {
+      return res.status(409).json({
+        message: "Lead already exists for this agent"
+      });
+    }
+
+    const newLead = {
+      leadId: normalizedMobile,        // ✅ same logic
+      sourceFileId: "manual",          // 🔥 manual entry
+      data: {
+        Name: name,
+        Mobile: normalizedMobile,
+        Location: location || ""
+      },
+      assigned: true,
+      assignedTo: agentId,
+      assignedAt: new Date(),
+      status: "followup"
+    };
+
+    record.leads.unshift(newLead); // top par dikhe
+    await record.save();
+
+    return res.status(201).json({
+      message: "Lead added successfully",
+      lead: newLead
+    });
+
+  } catch (error) {
+    console.error("Manual lead error:", error);
+    return res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
+
 module.exports = {
   assignLeadsToAgent,
   getAssignedLeads,
   getAllAssignedLeads,
   getAssignedLeadsSummary,
+  addManualAssignedLead
 };
 

@@ -28,6 +28,7 @@ import ClosedLeads from './Admin-Agent-forms/AgentData/ClosedUpShowtoadmin';
 import TotalAssigend from './Admin-Agent-forms/AgentData/TotalAssignedLead';
 import Notifications from './AgentsPage/Notification';
 import AcdPage from './Admin-Agent-forms/AgentData/ACD';
+import AddLeadsPage from './AgentsPage/AddLeadPage';
 
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
 <Route path="/total-assigned/:id" element={<TotalAssigend />} />
 <Route path="/notifications" element={<Notifications />} />
 <Route path="/acd/:id" element={<AcdPage />} />
+<Route  path='/Addlead-by-agent' element={<AddLeadsPage />}/>
 
       <Route
           path="/AgentDashboard"

@@ -26,9 +26,13 @@ const Dashboard = () => {
 const [workingTime, setWorkingTime] = useState(0);
 const [breakTime, setBreakTime] = useState(0);
 
+
 const [isOnBreak, setIsOnBreak] = useState(
-  localStorage.getItem("isOnBreak") === "true"
+  localStorage.getItem(`isOnBreak_${agentId}`) === "true"
 );
+
+const todayKey = new Date().toISOString().split("T")[0];
+// example: 2026-02-09
 
 
 
@@ -41,10 +45,16 @@ const [isOnBreak, setIsOnBreak] = useState(
   const notificationTimers = useRef([]);
   
 useEffect(() => {
-  if (!localStorage.getItem("workStartTime")) {
-    localStorage.setItem("workStartTime", Date.now());
+  if (!agentId) return;
+
+  if (!localStorage.getItem(`workStartTime_${agentId}`)) {
+    localStorage.setItem(`workStartTime_${agentId}`, Date.now());
+    localStorage.setItem(`totalBreakTime_${agentId}`, "0");
+    localStorage.setItem(`breakCount_${agentId}`, "0");
+    localStorage.setItem(`isOnBreak_${agentId}`, "false");
   }
-}, []);
+}, [agentId]);
+
 
 
   useEffect(() => {
@@ -210,8 +220,13 @@ useEffect(() => {
   if (isOnBreak) return;
 
   const interval = setInterval(() => {
-    const start = Number(localStorage.getItem("workStartTime"));
-    const totalBreak = Number(localStorage.getItem("totalBreakTime")) || 0;
+const start = Number(
+  localStorage.getItem(`workStartTime_${agentId}`)
+);
+
+const totalBreak =
+  Number(localStorage.getItem(`totalBreakTime_${agentId}`)) || 0;
+
 
     if (!start) return;
 
@@ -305,56 +320,77 @@ const handleStopResume = () => {
     };
   }, []);
 
+  
 useEffect(() => {
-  const storedBreak = localStorage.getItem("isOnBreak") === "true";
+  const storedBreak =
+    localStorage.getItem(`isOnBreak_${agentId}`) === "true";
   setIsOnBreak(storedBreak);
-}, []);
+}, [agentId]);
 
 
 
 
   const startBreak = () => {
-  localStorage.setItem("breakStartTime", Date.now());
-  localStorage.setItem("isOnBreak", "true");
+localStorage.setItem(`breakStartTime_${agentId}`, Date.now());
+localStorage.setItem(`isOnBreak_${agentId}`, "true");
 
-  const count = Number(localStorage.getItem("breakCount")) || 0;
-  localStorage.setItem("breakCount", count + 1);
+const count =
+  Number(
+    localStorage.getItem(
+      `breakCount_${agentId}_${todayKey}`
+    )
+  ) || 0;
+
+localStorage.setItem(
+  `breakCount_${agentId}_${todayKey}`,
+  count + 1
+);
+
+
 
   setBreakTime(0);
   setIsOnBreak(true);
 };
 
 const endBreak = () => {
-  const breakStart = Number(localStorage.getItem("breakStartTime"));
-  const totalBreak = Number(localStorage.getItem("totalBreakTime")) || 0;
+  const breakStart = Number(
+    localStorage.getItem(`breakStartTime_${agentId}`)
+  );
+
+const totalBreak = Number(localStorage.getItem( `totalBreakTime_${agentId}_${todayKey}`)) || 0;
 
   if (breakStart) {
     const duration = Math.floor((Date.now() - breakStart) / 1000);
-    localStorage.setItem("totalBreakTime", totalBreak + duration);
+  localStorage.setItem(
+  `totalBreakTime_${agentId}_${todayKey}`,
+  totalBreak + duration
+);
   }
 
-  localStorage.removeItem("breakStartTime");
-  localStorage.setItem("isOnBreak", "false");
+  localStorage.removeItem(`breakStartTime_${agentId}`);
+  localStorage.setItem(`isOnBreak_${agentId}`, "false");
 
   setBreakTime(0);
   setIsOnBreak(false);
 };
 
+
 useEffect(() => {
   if (!isOnBreak) return;
 
   const interval = setInterval(() => {
-    const breakStart = Number(localStorage.getItem("breakStartTime"));
+    const breakStart = Number(
+      localStorage.getItem(`breakStartTime_${agentId}`)
+    );
     if (!breakStart) return;
 
-    const seconds =
-      Math.floor((Date.now() - breakStart) / 1000);
-
+    const seconds = Math.floor((Date.now() - breakStart) / 1000);
     setBreakTime(seconds);
   }, 1000);
 
   return () => clearInterval(interval);
-}, [isOnBreak]);
+}, [isOnBreak, agentId]);
+
 
 
 
@@ -590,9 +626,9 @@ useEffect(() => {
           </div>
 
 
-              <div className="Dashboard-tesg-card" onClick={() => navigate("")}>
+              <div className="Dashboard-tesg-card" onClick={() => navigate("/Addlead-by-agent")}>
             <div className="sky-circle">
-              <img src= "" alt="" className="Dashboard-tesg-image" />
+              <img src=""alt="" className="Dashboard-tesg-image" />
             </div>
             <span>
              Add Lead

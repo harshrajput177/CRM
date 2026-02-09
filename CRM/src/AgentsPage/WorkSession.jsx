@@ -31,13 +31,30 @@ const [breakCount, setBreakCount] = useState(0);
   };
 
 
-  useEffect(() => {
-  const storedBreakTime = Number(localStorage.getItem("totalBreakTime")) || 0;
-  const storedBreakCount = Number(localStorage.getItem("breakCount")) || 0;
+useEffect(() => {
+  if (!agentId) return;
+
+  const todayKey = new Date().toISOString().split("T")[0];
+  // example: 2026-02-09
+
+  const storedBreakTime =
+    Number(
+      localStorage.getItem(
+        `totalBreakTime_${agentId}_${todayKey}`
+      )
+    ) || 0;
+
+  const storedBreakCount =
+    Number(
+      localStorage.getItem(
+        `breakCount_${agentId}_${todayKey}`
+      )
+    ) || 0;
 
   setTotalBreakTime(storedBreakTime);
   setBreakCount(storedBreakCount);
-}, []);
+}, [agentId]);
+
 
 
   return (

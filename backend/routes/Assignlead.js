@@ -4,6 +4,7 @@ const {
   getAssignedLeads,
   getAllAssignedLeads,
   getAssignedLeadsSummary,
+  addManualAssignedLead,
 } = require("../Controller/AddAgent/AssignleadCon");
 
 const router = express.Router();
@@ -19,6 +20,6 @@ router.get("/assigned-leads", getAllAssignedLeads);
 
 router.get("/assigned-leads-summary", getAssignedLeadsSummary);
 
-
+router.post("/assigned-leads/manual", addManualAssignedLead);
 
 module.exports = router;

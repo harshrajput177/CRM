@@ -1,0 +1,82 @@
+/* ===============================
+   CONTAINER
+================================ */
+.addlead-container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+  background: #f7f9fc;
+  min-height: 100vh;
+}
+
+.addlead-title {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1f2937;
+}
+
+/* ===============================
+   ADD LEAD FORM
+================================ */
+.addlead-form {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  margin-bottom: 30px;
+}
+
+.addlead-form h2 {
+  margin-bottom: 15px;
+}
+
+.addlead-form input,
+.addlead-form select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+}
+
+.addlead-form button {
+  width: 100%;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===============================
+   LEAD CARDS
+================================ */
+.addlead-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+/* ===============================
+   LEAD GRID
+================================ */
+.addlead-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.addlead-field {
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.addlead-field strong {
+  font-size: 12px;
+  color: #374151;
+}
