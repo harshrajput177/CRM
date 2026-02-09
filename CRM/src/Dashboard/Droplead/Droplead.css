@@ -79,3 +79,43 @@
   border-radius: 24px;
   cursor: pointer;
 }
+
+
+
+.notification-icon {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background: red;
+  border-radius: 50%;
+}
+
+/* Popup animation */
+.followup-popup {
+  position: fixed;
+  top: 80px;
+  right: -340px;
+  width: 300px;
+  background: #111827;
+  color: white;
+  padding: 16px;
+  border-radius: 8px 0 0 8px;
+  animation: slideIn 0.5s forwards;
+  z-index: 9999;
+}
+
+@keyframes slideIn {
+  to {
+    right: 0;
+  }
+}

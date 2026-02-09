@@ -1,0 +1,65 @@
+.attendance-wrapper {
+    margin: 60px  0;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  border: 1px solid rgb(115, 115, 115);
+  width: 860px;
+}
+
+.attend-h3{
+  color: black;
+  margin-bottom: 40px;
+}
+.calendar-header {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.calendar-header select,
+.calendar-header button {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid gray;
+  cursor: pointer;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.day-name {
+  font-size: 13px;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.calendar-day {
+  color: rgb(41, 41, 41);
+  height: 40px;
+  background: #f0f0f0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 0.8px solid rgb(129, 129, 129);
+  transition: 0.2s;
+  box-shadow: 0 0 5px rgba(166, 166, 166, 0.518);
+}
+
+.calendar-day:hover {
+  background: #6366f1;
+}
+
+.calendar-day.empty {
+  background: transparent;
+  cursor: default;
+}

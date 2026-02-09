@@ -1,12 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
+
 
 const TotalResolvedLeads = () => {
   const { id } = useParams();
   const [leads, setLeads] = useState([]);
 
   const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+  const location = useLocation();
+const query = new URLSearchParams(location.search);
+const selectedDate = query.get("date");
 
 
   const navigate = useNavigate();
@@ -15,16 +21,29 @@ const TotalResolvedLeads = () => {
     navigate("/allagents")
   }
 
-  useEffect(() => {
-    const fetchResolved = async () => {
-      const res = await axios.get(
-        `${BASE_URL}/api/resolved-leads/${id}`
-      );
-      setLeads(res.data.data);
-    };
+useEffect(() => {
+  const fetchResolved = async () => {
+    const res = await axios.get(
+      `${BASE_URL}/api/resolved-leads/${id}`
+    );
 
-    fetchResolved();
-  }, [id]);
+    let data = res.data.data;
+
+    if (selectedDate) {
+      data = data.filter(lead => {
+        const leadDate = new Date(lead.createdAt)
+          .toISOString()
+          .split("T")[0];
+        return leadDate === selectedDate;
+      });
+    }
+
+    setLeads(data);
+  };
+
+  fetchResolved();
+}, [id, selectedDate]);
+
 
   return (
     <div style={{ padding: "20px" }}>

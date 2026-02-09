@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import '../../../Styles-CSS/HRM-CSS/HRM-das.css';
-import img1 from '../../../Images/GWI-LOGO.png'
+import img1 from '../../../Images/GWI-LOGO.png';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import AttendanceCalendar from "./Calender";
 
 import {
   FaUsers,
@@ -13,57 +13,84 @@ import {
   FaDollarSign,
 } from 'react-icons/fa';
 
-
 function HRM() {
-  const [showDropdowns, setShowDropdowns] = useState({
-    hrm: false,
-    department: false,
-    Leaves: false,
-    payroll: false,
-    attendance: false,
-    setting: false
-  });
-
   const [activePage, setActivePage] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [secondsWorked, setSecondsWorked] = useState(0); // ⬅ Work timer
+  const [secondsWorked, setSecondsWorked] = useState(0);
   const [onBreak, setOnBreak] = useState(false);
+  const [userDetails, setUserDetails] = useState({});
+  const [loadingUserId, setLoadingUserId] = useState(null);
+
   const [hoverDate, setHoverDate] = useState(null);
-const [attendance, setAttendance] = useState([]);
-
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-
-
-  const toggleDropdown = (key) => {
-    setShowDropdowns((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
+  const [attendance, setAttendance] = useState([]);
+  const [hoveredUserIndex, setHoveredUserIndex] = useState(null);
 
   const navigate = useNavigate();
 
-  const handleLogout = () =>{
-    navigate("/")
-  }
+  const handleLogout = () => {
+    navigate("/");
+  };
 
 
+  const fetchUserDetails = async (agentId) => {
+    if (userDetails[agentId]) return; // already fetched
+
+    setLoadingUserId(agentId);
+
+    try {
+      const [
+        assignedRes,
+        followUpRes,
+        closedRes,
+        sessionRes
+      ] = await Promise.all([
+        axios.get(`${BASE_URL}/api/assigned-leads/${agentId}?view=all`),
+        axios.get(`${BASE_URL}/api/resolved-leads/${agentId}`),
+        axios.get(`${BASE_URL}/api/resolved-leads/${agentId}?type=closed`),
+        axios.get(`${BASE_URL}/api/sessions/${agentId}`)
+      ]);
+
+      const totalDays = new Set(
+        sessionRes.data.map(s =>
+          new Date(s.loginTime).toDateString()
+        )
+      ).size;
+
+      setUserDetails(prev => ({
+        ...prev,
+        [agentId]: {
+          totalLeads: assignedRes.data.length,
+          followUps: followUpRes.data.length,
+          closedLeads: closedRes.data.length,
+          totalDays
+        }
+      }));
+    } catch (err) {
+      console.error("User detail fetch error", err);
+    } finally {
+      setLoadingUserId(null);
+    }
+  };
+
+
+  // 🔥 DATE HOVER HANDLER
   const handleDateHover = async (dateStr) => {
-  setHoverDate(dateStr);
+    if (hoverDate === dateStr) return; // repeat call guard
 
-  try {
-    const res = await axios.get(
-      `http://localhost:5000/api/attendance/${dateStr}`
-    );
-    setAttendance(res.data || []);
-  } catch (err) {
-    console.error("Attendance fetch error", err);
-    setAttendance([]);
-  }
-};
+    setHoverDate(dateStr);
+    setHoveredUserIndex(null);
 
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/attendance/${dateStr}`
+      );
+      setAttendance(res.data || []);
+    } catch (err) {
+      console.error("Attendance fetch error", err);
+      setAttendance([]);
+    }
+  };
 
-  // Timer effect
+  // ⏱ Timer (unchanged)
   useEffect(() => {
     const timer = setInterval(() => {
       if (!onBreak) {
@@ -74,111 +101,110 @@ const [attendance, setAttendance] = useState([]);
     return () => clearInterval(timer);
   }, [onBreak]);
 
-
   return (
     <div className="app-container">
       <aside className="HRM-sidebar">
-        <div className="logo"><img src={img1} alt="" className='gwi-image' /></div>
-        <nav className="HRM-sidebar-nav">
- 
-        </nav>
+        <div className="logo">
+          <img src={img1} alt="logo" className="gwi-image" />
+        </div>
       </aside>
 
       <div className="HRM-main-content">
         <header className="navbar">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <h2>Hello 👋</h2>
-          </div>
-
-               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <button  className='button-logout'   onClick={handleLogout}>Logout</button>
-          </div>
+          <h2>Hello 👋</h2>
+          <button className="button-logout" onClick={handleLogout}>
+            Logout
+          </button>
         </header>
 
         <div className="dashboard-scrollable">
           {activePage === 'dashboard' && (
-            <>
-              <div className="stats">
-                <div className="HRMdas-card"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/all-files")}>
-                  <FaUsers className="icon" />
-
-                  Select File
-                </div>
-                <div className="HRMdas-card"   onClick={() => navigate("/leads")}>
-                  <FaDollarSign className="icon" />
-                 Total Leads
-                </div>
-            
-                <div
-                  className="HRMdas-card"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/droplead")}
-                >
-                  <FaCheckCircle className="icon" />
-                  Drop File
-                </div>
-                <div className="HRMdas-card"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/allagents")}>
-                   <FaUserFriends className="icon" />
-                  Total Agent
-                </div>
-                <div className="HRMdas-card" onClick={() => navigate("/leadtable")}>
-                      <FaUserCheck className="icon" />
-                  Assign Lead
-                </div>
+            <div className="stats">
+              <div className="HRMdas-card" onClick={() => navigate("/all-files")}>
+                <FaUsers className="icon" />
+                Select File
               </div>
-            </>
+
+              <div className="HRMdas-card" onClick={() => navigate("/leads")}>
+                <FaDollarSign className="icon" />
+                Total Leads
+              </div>
+
+              <div className="HRMdas-card" onClick={() => navigate("/droplead")}>
+                <FaCheckCircle className="icon" />
+                Drop File
+              </div>
+
+              <div className="HRMdas-card" onClick={() => navigate("/allagents")}>
+                <FaUserFriends className="icon" />
+                Total Agent
+              </div>
+
+              <div className="HRMdas-card" onClick={() => navigate("/leadtable")}>
+                <FaUserCheck className="icon" />
+                Assign Lead
+              </div>
+            </div>
           )}
 
-          {activePage === 'addEmployee' && <EmployeeDirectory />}
+          {/* 📅 Calendar + User Panel */}
+          <div className="AttendanceCalendar-with-User">
+            <AttendanceCalendar handleDateHover={handleDateHover} />
+
+      {hoverDate && (
+  <div className="attendance-panel">
+    <h4>📅 {hoverDate} – Agents</h4>
+
+    {attendance.length === 0 ? (
+      <p>No data</p>
+    ) : (
+      attendance.map((u, i) => {
+        const isHovered = hoveredUserIndex === i;
+        const details = userDetails[u.id];
+
+        return (
+          <div
+            key={u.id || i}   // ✅ safe key
+            className="user-row"
+            onMouseEnter={() => {
+              setHoveredUserIndex(i);
+              fetchUserDetails(u.id);
+            }}
+            onMouseLeave={() => setHoveredUserIndex(null)}
+          >
+            {/* 👤 BASIC INFO */}
+            <div className="user-basic">
+              <strong>{u.name}</strong>
+              <span>
+                {u.status === "online" ? "🟢 Online" : "🔴 Offline"}
+              </span>
+            </div>
+
+            {/* 📊 DETAILS (ONLY ON USER HOVER) */}
+            {isHovered && (
+              <div className="user-details">
+                {loadingUserId === u.id && !details ? (
+                  <p>Loading...</p>
+                ) : (
+                  <>
+                    <p>📂 Total Leads: {details?.totalLeads ?? 0}</p>
+                    <p>📞 Follow Ups: {details?.followUps ?? 0}</p>
+                    <p>✅ Closed: {details?.closedLeads ?? 0}</p>
+                    <p>📅 Total Days: {details?.totalDays ?? 0}</p>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })
+    )}
+  </div>
+)}
+
+          </div>
         </div>
       </div>
-
-      {/* ================= CALENDAR + ATTENDANCE ================= */}
-<div className="attendance-wrapper">
-  <h3>📅 Attendance Calendar</h3>
-
-  <div className="calendar-grid">
-    {Array.from({ length: 31 }, (_, i) => {
-      const day = i + 1;
-      const dateStr = `2026-01-${String(day).padStart(2, "0")}`;
-
-      return (
-        <div
-          key={day}
-          className="calendar-day"
-          onMouseEnter={() => handleDateHover(dateStr)}
-        >
-          {day}
-        </div>
-      );
-    })}
-  </div>
-
-  {/* ================= USER STATUS PANEL ================= */}
-  {hoverDate && (
-    <div className="attendance-panel">
-      <h4>👥 Users on {hoverDate}</h4>
-
-      {attendance.length === 0 ? (
-        <p>No data</p>
-      ) : (
-        attendance.map((u, i) => (
-          <div key={i} className={`user-row ${u.status}`}>
-            <span>{u.name}</span>
-            <span>
-              {u.status === "online" ? "🟢 Online" : "🔴 Offline"}
-            </span>
-          </div>
-        ))
-      )}
-    </div>
-  )}
-</div>
-
     </div>
   );
 }

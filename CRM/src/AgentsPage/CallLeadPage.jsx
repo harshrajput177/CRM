@@ -13,7 +13,16 @@ const CallLeadsPage = () => {
   const [savedLeads, setSavedLeads] = useState({});
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
+  const [followTimes, setFollowTimes] = useState({});
+const [followAmPm, setFollowAmPm] = useState({});
+const [followHours, setFollowHours] = useState({}); // 1–12
+const [followMinutes, setFollowMinutes] = useState({}); 
+
+
   const agentId = localStorage.getItem("agentId");
+
+
+  
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -59,46 +68,53 @@ const CallLeadsPage = () => {
   };
 
 
+  const buildFollowUpDateTime = (index) => {
+  const date = followUps[index];
+  const hour = followHours[index];
+  const minute = followMinutes[index];
+  const ampm = followAmPm[index];
+
+  if (!date || !hour || !minute || !ampm) return null;
+
+  let hours = parseInt(hour);
+
+  if (ampm === "PM" && hours < 12) hours += 12;
+  if (ampm === "AM" && hours === 12) hours = 0;
+
+  return `${date}T${hours.toString().padStart(2, "0")}:${minute}`;
+};
+
+
+
   const handleFollowUpLead = async () => {
-    const currentLead = leads[currentIndex];
-    const remark = remarks[currentIndex];
-    const dispose = disposals[currentIndex];
-    const followUp = followUps[currentIndex];
+  const currentLead = leads[currentIndex];
+  const remark = remarks[currentIndex];
+  const dispose = disposals[currentIndex];
 
-    // 🔒 HARD VALIDATION
-    if (!remark) {
-      alert("⚠️ Remark required");
-      return;
-    }
+  const followUpDateTime = buildFollowUpDateTime(currentIndex);
 
-    if (!dispose) {
-      alert("⚠️ Dispose required");
-      return;
-    }
+  if (!remark) return alert("⚠️ Remark required");
+  if (!dispose) return alert("⚠️ Dispose required");
+  if (!followUpDateTime) return alert("⚠️ Date, Time & AM/PM required");
 
-    if (!followUp) {
-      alert("⚠️ Follow-up date required");
-      return;
-    }
+  try {
+    await axios.post(`${BASE_URL}/api/save-lead-status`, {
+      agentId,
+      leadId: currentLead.leadId,
+      remark,
+      dispose,
+      followUp: followUpDateTime,
+    });
 
-    try {
-      await axios.post(`${BASE_URL}/api/save-lead-status`, {
-        agentId,
-        leadId: currentLead.leadId,
-        remark,
-        dispose,
-        followUp,
-      });
+    setLeads(prev => prev.filter((_, i) => i !== currentIndex));
+    setCurrentIndex(0);
+    setShowStatusMenu(false);
+  } catch (err) {
+    console.error(err);
+    alert("❌ Failed to save follow-up");
+  }
+};
 
-      // ✅ ONLY AFTER SUCCESS → remove lead
-      setLeads(prev => prev.filter((_, i) => i !== currentIndex));
-      setCurrentIndex(0);
-      setShowStatusMenu(false);
-    } catch (err) {
-      console.error(err);
-      alert("❌ Failed to save follow-up");
-    }
-  };
 
   const handleCloseLead = async () => {
     const currentLead = leads[currentIndex];
@@ -204,29 +220,80 @@ const CallLeadsPage = () => {
           </select>
         </div>
 
-        {/* Follow up */}
-        <div className="form-group">
-          <label>Follow Up</label>
-          {!showCalendar ? (
-            <button
-              className="btn btn-calendar"
-              onClick={() => setShowCalendar(true)}
-            >
-              Select Date
-            </button>
-          ) : (
-            <input
-              type="date"
-              value={followUps[currentIndex] || ""}
-              onChange={e =>
-                setFollowUps(prev => ({
-                  ...prev,
-                  [currentIndex]: e.target.value,
-                }))
-              }
-            />
-          )}
-        </div>
+
+
+{/* Follow up */}
+<div className="form-group">
+  <label>Follow Up</label>
+
+  {/* Date */}
+  <input
+    type="date"
+    value={followUps[currentIndex] || ""}
+    onChange={e =>
+      setFollowUps(prev => ({
+        ...prev,
+        [currentIndex]: e.target.value,
+      }))
+    }
+  />
+
+  <div style={{ display: "flex", gap: "8px", marginTop: "6px" }}>
+    
+    {/* Hour 1–12 */}
+    <select
+      value={followHours[currentIndex] || ""}
+      onChange={e =>
+        setFollowHours(prev => ({
+          ...prev,
+          [currentIndex]: e.target.value,
+        }))
+      }
+    >
+      <option value="">Hour</option>
+      {[...Array(12)].map((_, i) => (
+        <option key={i + 1} value={i + 1}>
+          {i + 1}
+        </option>
+      ))}
+    </select>
+
+    {/* Minutes */}
+    <select
+      value={followMinutes[currentIndex] || ""}
+      onChange={e =>
+        setFollowMinutes(prev => ({
+          ...prev,
+          [currentIndex]: e.target.value,
+        }))
+      }
+    >
+      <option value="">Min</option>
+      {[...Array(60)].map((_, i) => (
+        <option key={i} value={i.toString().padStart(2, "0")}>
+          {i.toString().padStart(2, "0")}
+        </option>
+      ))}
+    </select>
+
+    {/* AM / PM */}
+    <select
+      value={followAmPm[currentIndex] || ""}
+      onChange={e =>
+        setFollowAmPm(prev => ({
+          ...prev,
+          [currentIndex]: e.target.value,
+        }))
+      }
+    >
+      <option value="">AM/PM</option>
+      <option value="AM">AM</option>
+      <option value="PM">PM</option>
+    </select>
+  </div>
+</div>
+
+
 
 
 

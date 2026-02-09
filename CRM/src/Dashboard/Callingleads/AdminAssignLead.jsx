@@ -167,10 +167,10 @@ const SelectedTable = () => {
         <h2>Assign Lead to Agent by Admin</h2>
 
         <div className="controls">
-          <button onClick={() => setShowAssignModal(true)}>
+          <button  className="backbtn" onClick={() => setShowAssignModal(true)}>
             + Assign Lead
           </button>
-          <button onClick={() => navigate("/HRM-Dashboard")}>
+          <button  className="backbtn" onClick={() => navigate("/HRM-Dashboard")}>
             Home
           </button>
         </div>
@@ -219,32 +219,42 @@ const SelectedTable = () => {
                 />
                 Select All
               </th>
+                  {/* 🔥 NEW LEAD NUMBER COLUMN */}
+    <th>Lead No.</th>
               {columns.map((col, i) => (
                 <th key={i}>{col}</th>
               ))}
             </tr>
           </thead>
 
-          <tbody>
-            {filteredLeads.map((lead, idx) => (
-              <tr key={idx}>
-                <td>
-                  {isLeadAssigned(lead) ? (
-                    <span style={{ color: "green", fontWeight: "bold" }}>✔</span>
-                  ) : (
-                    <input
-                      type="checkbox"
-                      checked={selectedLeads.includes(idx)}
-                      onChange={() => handleCheckboxChange(idx)}
-                    />
-                  )}
-                </td>
-                {columns.map((col, i) => (
-                  <td key={i}>{lead[col]}</td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
+
+<tbody>
+  {filteredLeads.map((lead, idx) => (
+    <tr key={idx}>
+      <td>
+        {isLeadAssigned(lead) ? (
+          <span style={{ color: "green", fontWeight: "bold" }}>✔</span>
+        ) : (
+          <input
+            type="checkbox"
+            checked={selectedLeads.includes(idx)}
+            onChange={() => handleCheckboxChange(idx)}
+          />
+        )}
+      </td>
+
+      {/* 🔥 LEAD NUMBER */}
+      <td style={{ fontWeight: "600" }}>
+        {idx + 1}
+      </td>
+
+      {columns.map((col, i) => (
+        <td key={i}>{lead[col]}</td>
+      ))}
+    </tr>
+  ))}
+</tbody>
+
         </table>
       </div>
     </div>

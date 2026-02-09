@@ -1,35 +1,73 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";   // << add
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../Droplead/Droplead.css";
 import uploadIcon from "../../Images/upload-icon-18.jpg";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-
 const FileUploader = () => {
-  const [items, setItems] = useState([]); // [{id, file, status, progress, errorMsg}]
-  const [pendingUploads, setPendingUploads] = useState(0); // track outstanding uploads
+  const [items, setItems] = useState([]);
+  const [pendingUploads, setPendingUploads] = useState(0);
+  const [popupLead, setPopupLead] = useState(null);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
 
-  const [allDone, setAllDone] = useState(false);
-
+  const shownNotifications = useRef(new Set()); // 🔒 duplicate popup protection
   const navigate = useNavigate();
+  const agentId = localStorage.getItem("agentId");
 
-  const handleFileDrop = (e) => {
-    e.preventDefault();
-    const droppedFiles = Array.from(e.dataTransfer.files);
-    processFiles(droppedFiles);
+  /* ================= FOLLOW-UP CHECKER ================= */
+
+  useEffect(() => {
+    if (!agentId) return;
+
+    checkFollowUps(); // initial
+    const interval = setInterval(checkFollowUps, 60000); // every 1 min
+
+    return () => clearInterval(interval);
+  }, [agentId]);
+
+  const checkFollowUps = async () => {
+    try {
+      const res = await fetch(
+        `${BASE_URL}/api/my-followups?agentId=${agentId}`
+      );
+      const data = await res.json();
+      if (!data?.followUps) return;
+
+      const now = new Date();
+
+      data.followUps.forEach((lead) => {
+        const followTime = new Date(lead.followUp);
+        const diffMinutes = Math.floor((followTime - now) / 60000);
+
+        const key = `${lead.leadId}-${diffMinutes}`;
+
+        if ([20, 10, 5].includes(diffMinutes) && !shownNotifications.current.has(key)) {
+          shownNotifications.current.add(key);
+
+          setPopupLead({
+            name: lead.name,
+            phone: lead.phone,
+            time: followTime.toLocaleTimeString([], {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            }),
+          });
+
+          setHasNewNotification(true); // 🔴 red dot ON
+        }
+      });
+    } catch (err) {
+      console.error("Follow-up check failed", err);
+    }
   };
 
-  const handleFileInput = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    processFiles(selectedFiles);
-    e.target.value = ""; // reset so same file can be re-selected
-  };
+  /* ================= FILE UPLOAD ================= */
 
   const processFiles = (selectedFiles) => {
     if (!selectedFiles.length) return;
 
-    // optimistic UI items
     const newItems = selectedFiles.map((file, idx) => ({
       id: `${Date.now()}-${idx}-${file.name}`,
       file,
@@ -39,79 +77,47 @@ const FileUploader = () => {
     }));
 
     setItems((prev) => [...prev, ...newItems]);
-
-    // track uploads
     setPendingUploads(selectedFiles.length);
-
-    // start uploads
-    newItems.forEach((item) => uploadSingleFile(item));
+    newItems.forEach(uploadSingleFile);
   };
 
   const uploadSingleFile = async (item) => {
     const formData = new FormData();
     formData.append("file", item.file);
 
-    // fake progress while waiting
     let prog = 0;
     const tick = setInterval(() => {
-      prog += 15;
-      if (prog >= 90) prog = 90;
+      prog = Math.min(prog + 15, 90);
       updateItem(item.id, { progress: prog });
     }, 250);
 
     try {
-      const res = await fetch(`${BASE_URL}/api/upload`
-, {
+      const res = await fetch(`${BASE_URL}/api/upload`, {
         method: "POST",
         body: formData,
       });
 
       clearInterval(tick);
 
-      if (!res.ok) {
-        updateItem(item.id, {
-          status: "error",
-          progress: 100,
-          errorMsg: `Server error: ${res.status}`,
-        });
-        return;
-      }
-
+      if (!res.ok) throw new Error(`Server error ${res.status}`);
       const data = await res.json();
-      const isOk = data?.success;
+
       updateItem(item.id, {
-        status: isOk ? "success" : "error",
+        status: data?.success ? "success" : "error",
         progress: 100,
-        errorMsg: isOk ? "" : "Upload failed.",
+        errorMsg: data?.success ? "" : "Upload failed",
       });
     } catch (err) {
       clearInterval(tick);
       updateItem(item.id, {
         status: "error",
         progress: 100,
-        errorMsg: err.message || "Network error.",
+        errorMsg: err.message || "Network error",
       });
     } finally {
-      // decrement pending; when all done → redirect
-      setPendingUploads((p) => {
-        const next = p - 1;
-        if (next === 0) {
-            setAllDone(true);
-          // all uploads finished → go select columns
-          // navigate("/HRM-Dashboard");
-        }
-        return next;
-      });
+      setPendingUploads((p) => Math.max(p - 1, 0));
     }
   };
-
-  
-
-
-const gotoHome = () => {
-  navigate("/HRM-Dashboard");
-};
-
 
   const updateItem = (id, patch) => {
     setItems((prev) =>
@@ -119,61 +125,76 @@ const gotoHome = () => {
     );
   };
 
-  const handleDragOver = (e) => e.preventDefault();
+  /* ================= UI ================= */
 
   return (
     <div className="lead-file-uploader">
-      <button className="btn-goto-home" onClick={gotoHome}>Home</button>
+      
+      {/* 🔔 Notification Icon */}
+      <div className="notification-icon">
+        🔔
+        {hasNewNotification && <span className="notification-dot"></span>}
+      </div>
 
-      <br />
-      <br />
+      <button className="btn-goto-home" onClick={() => navigate("/HRM-Dashboard")}>
+        Home
+      </button>
+
       <div
         className="lead-upload-area"
-        onDrop={handleFileDrop}
-        onDragOver={handleDragOver}
+        onDrop={(e) => {
+          e.preventDefault();
+          processFiles(Array.from(e.dataTransfer.files));
+        }}
+        onDragOver={(e) => e.preventDefault()}
       >
         <img src={uploadIcon} alt="Upload" className="upload-icon" />
-        <p>
-          Drag & drop files or <span>Browse</span>
-        </p>
+        <p>Drag & drop files or <span>Browse</span></p>
         <input
           type="file"
           multiple
           accept=".csv,.xls,.xlsx,.pdf,.doc,.docx,.png,.jpg"
-          onChange={handleFileInput}
-          style={{ display: "none" }}
+          onChange={(e) => {
+            processFiles(Array.from(e.target.files));
+            e.target.value = "";
+          }}
+          hidden
           id="file-input"
         />
-        <label htmlFor="file-input" className="lead-browse-btn">
-          Browse
-        </label>
+        <label htmlFor="file-input" className="lead-browse-btn">Browse</label>
       </div>
 
       {items.map((item) => (
         <div key={item.id} className="lead-file-status">
           <p>{item.file.name}</p>
-
           {item.status === "uploading" && (
             <div className="lead-progress-bar">
-              <div
-                className="lead-progress"
-                style={{ width: `${item.progress}%` }}
-              ></div>
+              <div className="lead-progress" style={{ width: `${item.progress}%` }} />
             </div>
           )}
-
-          {item.status === "success" && (
-            <p className="lead-success">Uploaded</p>
-          )}
-
-          {item.status === "error" && (
-            <p className="error">
-              {item.errorMsg ||
-                "This document is not supported. Please upload another file."}
-            </p>
-          )}
+          {item.status === "success" && <p className="lead-success">Uploaded</p>}
+          {item.status === "error" && <p className="error">{item.errorMsg}</p>}
         </div>
       ))}
+
+      {/* 🔔 FOLLOW-UP POPUP */}
+      {popupLead && (
+        <div className="followup-popup">
+          <h4>📞 Follow-up Reminder</h4>
+          <p><b>Name:</b> {popupLead.name}</p>
+          <p><b>Phone:</b> {popupLead.phone}</p>
+          <p><b>Call Time:</b> {popupLead.time}</p>
+
+          <button
+            onClick={() => {
+              setPopupLead(null);
+              setHasNewNotification(false); // 🔴 dot off when closed
+            }}
+          >
+            Close
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import "./FollowUp.css";
+import { useLocation } from "react-router-dom";
+
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
@@ -15,6 +17,13 @@ const FollowUpSheet = () => {
   const [editRemark, setEditRemark] = useState("");
   const [editDispose, setEditDispose] = useState("");
   const [editFollowUp, setEditFollowUp] = useState("");
+  const rowRefs = useRef({});
+
+
+
+  const location = useLocation();
+  const highlightLeadId = location.state?.highlightLeadId;
+
 
   // ================= FETCH FOLLOW UPS =================
   useEffect(() => {
@@ -38,7 +47,7 @@ const FollowUpSheet = () => {
     };
 
     if (agentId) fetchFollowUps();
-else setLoading(false);
+    else setLoading(false);
 
   }, [agentId]);
 
@@ -51,6 +60,22 @@ else setLoading(false);
     );
     setShowModal(true);
   };
+
+  const formatFollowUpDateTime = (dateTime) => {
+    if (!dateTime) return "-";
+
+    const d = new Date(dateTime);
+
+    return d.toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
 
   // ================= FOLLOW UP UPDATE =================
   const handleFollowUpUpdate = async () => {
@@ -74,11 +99,11 @@ else setLoading(false);
         prev.map(f =>
           f._id === currentLead._id
             ? {
-                ...f,
-                remark: res.data.data.remark,
-                dispose: res.data.data.dispose,
-                followUp: res.data.data.followUp,
-              }
+              ...f,
+              remark: res.data.data.remark,
+              dispose: res.data.data.dispose,
+              followUp: res.data.data.followUp,
+            }
             : f
         )
       );
@@ -121,6 +146,16 @@ else setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (highlightLeadId && rowRefs.current[highlightLeadId]) {
+      rowRefs.current[highlightLeadId].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [highlightLeadId, followups]);
+
+
   if (loading) return <h2 style={{ textAlign: "center" }}>Loading...</h2>;
 
   return (
@@ -138,6 +173,7 @@ else setLoading(false);
       >
         <thead style={{ background: "#eee" }}>
           <tr>
+            <th>No.</th>
             <th>Name</th>
             <th>Phone</th>
             <th>Remark</th>
@@ -149,17 +185,38 @@ else setLoading(false);
 
         <tbody>
           {followups.map((item, index) => (
-            <tr key={item._id || index} onClick={() => openEditModal(item)}>
+
+
+            <tr
+              key={item._id || index}
+              ref={(el) => {
+                if (item._id === highlightLeadId) {
+                  rowRefs.current[item._id] = el;
+                }
+              }}
+              onClick={() => openEditModal(item)}
+              style={{
+                backgroundColor:
+                  item._id === highlightLeadId ? "#fff9c4" : "transparent",
+              }}
+            >
+
+              {/* 🔥 SERIAL NUMBER */}
+              <td style={{ fontWeight: "600", textAlign: "center" }}>
+                {index + 1}
+              </td>
+
               <td>{item.name || "-"}</td>
               <td>{item.phone || "-"}</td>
               <td>{item.remark || "-"}</td>
               <td>{item.dispose || "-"}</td>
-              <td>{item.followUp || "-"}</td>
-             <td>{new Date(item.createdAt).toLocaleString("en-IN")}</td>
+              <td>{formatFollowUpDateTime(item.followUp)}</td>
+              <td>{new Date(item.createdAt).toLocaleString("en-IN")}</td>
 
             </tr>
           ))}
         </tbody>
+
       </table>
 
       {/* ================= MODAL ================= */}
@@ -202,8 +259,8 @@ else setLoading(false);
                 Follow Up
               </button>
 
-<br />
-<br />
+              <br />
+              <br />
               <button className="modal-btn close" onClick={handleCloseLead}>
                 Close Lead
               </button> &nbsp;  &nbsp;  &nbsp;  &nbsp;

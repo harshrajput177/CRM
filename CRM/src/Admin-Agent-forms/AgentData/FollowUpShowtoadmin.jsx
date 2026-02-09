@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
 
 const FollowUpLeads = () => {
   const { id } = useParams();
@@ -12,30 +12,40 @@ const FollowUpLeads = () => {
 
     const navigate = useNavigate();
 
+    
+      const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const selectedDate = query.get("date");
+
   const gotoback = () =>{
     navigate("/allagents")
   }
 
 
-  useEffect(() => {
-    const fetchFollowUps = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
+ useEffect(() => {
+  const fetchFollowUps = async () => {
+    const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
 
-        const followUps = res.data.data.filter(
-          lead => lead.followUp !== null
-        );
+    let data = res.data.data.filter(
+      lead => lead.followUp !== null
+    );
 
-        setLeads(followUps);
-      } catch (err) {
-        console.error("Follow-up error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (selectedDate) {
+      data = data.filter(lead => {
+        const leadDate = new Date(lead.createdAt)
+          .toISOString()
+          .split("T")[0];
+        return leadDate === selectedDate;
+      });
+    }
 
-    fetchFollowUps();
-  }, [id]);
+    setLeads(data);
+    setLoading(false);
+  };
+
+  fetchFollowUps();
+}, [id, selectedDate]);
+
 
   if (loading) return <h3>Loading Follow Ups...</h3>;
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
 
 const ClosedLeads = () => {
   const { id } = useParams();
@@ -14,20 +14,35 @@ const ClosedLeads = () => {
 
   const navigate = useNavigate();
 
+  
+    const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const selectedDate = query.get("date");
+
   const gotoback = () =>{
     navigate("/allagents")
   }
 
- useEffect(() => {
+useEffect(() => {
   const fetchClosedLeads = async () => {
     try {
       const res = await axios.get(
-  `${BASE_URL}/api/resolved-leads/${id}?type=closed`
-
+        `${BASE_URL}/api/resolved-leads/${id}?type=closed`
       );
-        console.log("API ID:", id); // ClosedLeads
-      // ✅ NO FILTER
-      setLeads(res.data.data || []);
+
+      let data = res.data.data || [];
+
+      // ✅ DATE FILTER APPLY
+      if (selectedDate) {
+        data = data.filter(lead => {
+          const leadDate = new Date(lead.createdAt)
+            .toISOString()
+            .split("T")[0];
+          return leadDate === selectedDate;
+        });
+      }
+
+      setLeads(data);
     } catch (err) {
       console.error("Closed leads error:", err);
     } finally {
@@ -36,7 +51,8 @@ const ClosedLeads = () => {
   };
 
   fetchClosedLeads();
-}, [id]);
+}, [id, selectedDate]);
+
 
 
   if (loading) return <h3>Loading Closed Leads...</h3>;

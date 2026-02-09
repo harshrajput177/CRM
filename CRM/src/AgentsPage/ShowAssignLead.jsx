@@ -7,6 +7,16 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const AssignedLeadsPage = () => {
   const [assignedLeads, setAssignedLeads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+  name: "",
+  number: "",
+  location: ""
+});
+
+const handleChange = (e) => {
+  setFormData({ ...formData, [e.target.name]: e.target.value });
+};
+
 
   const agentId = localStorage.getItem("agentId");
 

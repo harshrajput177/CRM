@@ -1,4 +1,5 @@
-const { User } = require("../../Model/Login-Ag-Ad");
+const User = require("../../Model/Login-Ag-Ad");
+
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 

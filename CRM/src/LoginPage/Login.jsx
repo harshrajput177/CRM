@@ -61,15 +61,22 @@ const handleLogin = async (event, type) => {
       longitude,
     });
 
-    if (response.status === 200) {
-      if (type === "agent") {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("agentId", response.data.user.id);
-        navigate("/AgentDashboard");
-      } else {
-        navigate("/HRM-Dashboard");
-      }
-    }
+if (response.status === 200) {
+  if (type === "agent") {
+    localStorage.setItem("token", response.data.token);
+    localStorage.setItem("agentId", response.data.user.id);
+
+    // ✅ START WORK SESSION (IMPORTANT)
+    await axios.post(`${BASE_URL}/api/start-session`, {
+      agentId: response.data.user.id,
+    });
+
+    navigate("/AgentDashboard");
+  } else {
+    navigate("/HRM-Dashboard");
+  }
+}
+
   } catch (error) {
     toast.error(error.response?.data?.message || "Login failed ❌");
   } finally {

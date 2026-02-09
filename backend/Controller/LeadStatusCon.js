@@ -135,6 +135,43 @@ const updateLeadStatus = async (req, res) => {
   }
 };
 
+const getMyFollowUps = async (req, res) => {
+  try {
+    const { agentId } = req.query;
+
+    if (!agentId) {
+      return res.status(400).json({ message: "agentId required" });
+    }
+
+    const now = new Date();
+
+    // 🔔 Sirf future follow-ups
+    const followUps = await Notification.find({
+      agentId,
+      followUpDate: { $gte: now },
+    })
+      .sort({ followUpDate: 1 }) // nearest first
+      .limit(20);
+
+    const formatted = followUps.map(n => ({
+      leadId: n.leadId,
+      name: n.contactName,
+      phone: n.contactNumber,
+      followUp: n.followUpDate,
+    }));
+
+    res.status(200).json({
+      success: true,
+      followUps: formatted,
+    });
+
+  } catch (err) {
+    console.error("Get my followups error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 
 const getResolvedLeadsByAgent = async (req, res) => {
@@ -182,4 +219,4 @@ const getResolvedLeadsByAgent = async (req, res) => {
   }
 };
 
-module.exports = { saveLeadStatus , getAllLeadStatus,  updateLeadStatus, getResolvedLeadsByAgent};
+module.exports = { saveLeadStatus , getAllLeadStatus,  updateLeadStatus, getMyFollowUps, getResolvedLeadsByAgent};
