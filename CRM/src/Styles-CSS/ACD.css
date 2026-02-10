@@ -1,0 +1,63 @@
+/* 📅 Date Picker Container */
+.date-filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 1px 0 25px;
+  font-family: "Inter", sans-serif;
+}
+
+/* 🏷 Label */
+.date-filter label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* 📅 Input Date */
+.date-filter input[type="date"] {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* 🔵 Hover */
+.date-filter input[type="date"]:hover {
+  border-color: #2563eb;
+}
+
+/* 🔵 Focus */
+.date-filter input[type="date"]:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* 📅 Calendar Icon */
+.date-filter input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(0.4);
+}
+
+/* 📱 Mobile Friendly */
+@media (max-width: 600px) {
+  .date-filter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .date-filter input[type="date"] {
+    width: 100%;
+  }
+}
+
+.ACD-NAV{
+    display: flex;
+    justify-content: space-between;
+}

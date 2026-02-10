@@ -156,16 +156,14 @@ const AgentDetails = () => {
   return (
     <div className="agent-details-container">
       <h1>Agent Profile</h1>
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ fontWeight: "600", marginRight: "10px" }}>
-          Select Date:
-        </label>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
-      </div>
+       <div className="date-filter">
+  <label>Select Date:</label>
+  <input
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+  />
+</div>
 
       <div className="agent-details-card">
         <img

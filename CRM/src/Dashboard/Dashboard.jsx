@@ -130,60 +130,79 @@ useEffect(() => {
   }, [agentId]);
 
 
-  useEffect(() => {
-    const fetchTodayFollowUps = async () => {
-      try {
-        const res = await axios.get(`${BASE_URL}/api/all-lead-status`);
-
-        const now = Date.now();
-
-        const myFollowUps = res.data.data.filter(item => {
-          if (!item.followUp) return false;
-          if (item.agentId !== agentId) return false;
-
-          const followTime = new Date(item.followUp).getTime();
-
-          console.log("⏰ Follow-up at:", new Date(followTime).toLocaleString());
-
-          return followTime > now;
-        });
-
-        setTodayFollowUps(myFollowUps);
-      } catch (err) {
-        console.error("❌ Follow-up fetch error", err);
-      }
-    };
-
-    if (agentId) fetchTodayFollowUps();
-  }, [agentId]);
-
 
 
   useEffect(() => {
-    // clear old timers
+  const fetchTodayFollowUps = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/all-lead-status`);
+
+      const now = new Date();
+      const nowTime = now.getTime();
+
+      const myFollowUps = res.data.data.filter(item => {
+        if (!item.followUp) return false;
+        if (item.agentId !== agentId) return false;
+
+        const followDate = new Date(item.followUp);
+
+        // 🛑 INVALID DATE SAFETY
+        if (isNaN(followDate.getTime())) return false;
+
+        // ✅ SAME DAY CHECK (MOST IMPORTANT)
+        const isSameDay =
+          followDate.getFullYear() === now.getFullYear() &&
+          followDate.getMonth() === now.getMonth() &&
+          followDate.getDate() === now.getDate();
+
+        if (!isSameDay) return false;
+
+        // ✅ FUTURE TIME ONLY (TODAY)
+        return followDate.getTime() > nowTime;
+      });
+
+      console.log(
+        "✅ Today FollowUps:",
+        myFollowUps.map(f => ({
+          time: new Date(f.followUp).toLocaleString(),
+        }))
+      );
+
+      setTodayFollowUps(myFollowUps);
+    } catch (err) {
+      console.error("❌ Follow-up fetch error", err);
+    }
+  };
+
+  if (agentId) fetchTodayFollowUps();
+}, [agentId]);
+
+
+
+useEffect(() => {
+  notificationTimers.current.forEach(t => clearTimeout(t));
+  notificationTimers.current = [];
+
+  todayFollowUps.forEach((lead) => {
+    const followTime = new Date(lead.followUp).getTime();
+    const now = Date.now();
+    const delay = followTime - now;
+
+    // 🛑 SAFETY CHECK
+    if (delay <= 0 || delay > 24 * 60 * 60 * 1000) return;
+
+    const timer = setTimeout(() => {
+      showFollowUpPopup(lead);
+    }, delay);
+
+    notificationTimers.current.push(timer);
+  });
+
+  return () => {
     notificationTimers.current.forEach(t => clearTimeout(t));
-    notificationTimers.current = [];
+  };
+}, [todayFollowUps]);
 
-    todayFollowUps.forEach((lead) => {
-      const followTime = new Date(lead.followUp).getTime();
-      const now = Date.now();
-      const delay = followTime - now;
-
-      console.log("⏳ Delay (ms):", delay);
-
-      if (delay > 0) {
-        const timer = setTimeout(() => {
-          showFollowUpPopup(lead);
-        }, delay);
-
-        notificationTimers.current.push(timer);
-      }
-    });
-
-    return () => {
-      notificationTimers.current.forEach(t => clearTimeout(t));
-    };
-  }, [todayFollowUps]);
 
   const showFollowUpPopup = (lead) => {
     console.log("🔥 POPUP TRIGGERED");

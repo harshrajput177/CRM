@@ -1,61 +1,83 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../../Styles-CSS/ACD.css"
 
 const AcdPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-  const [todayCalls, setTodayCalls] = useState([]);
-  const [todaySessions, setTodaySessions] = useState([]);
+  const [calls, setCalls] = useState([]);
+  const [sessions, setSessions] = useState([]);
   const [acd, setAcd] = useState("0m 0s");
   const [totalWorkTime, setTotalWorkTime] = useState(0);
 
+  // ✅ Selected Date (default = today)
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
 
+  const selectedDateStr = new Date(selectedDate).toDateString();
 
-  const todayStr = new Date().toDateString();
-
+  // 🔁 Fetch data whenever agent or date changes
   useEffect(() => {
-    fetchTodayCalls();
-    fetchTodaySessions();
-  }, [id]);
+    fetchCallsByDate();
+    fetchSessionsByDate();
+  }, [id, selectedDate]);
 
-  // 🔹 Fetch Today's Resolved Calls
-  const fetchTodayCalls = async () => {
-    const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
-    const todayLeads = res.data.data.filter(
-      (l) => new Date(l.createdAt).toDateString() === todayStr
-    );
-    setTodayCalls(todayLeads);
-  };
+  // 📞 Fetch resolved calls (date-wise)
+  const fetchCallsByDate = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
 
-  // 🔹 Fetch Today's Working Sessions
-  const fetchTodaySessions = async () => {
-    const res = await axios.get(`${BASE_URL}/api/sessions/${id}`);
+      const filteredCalls = res.data.data.filter(
+        (c) =>
+          new Date(c.createdAt).toDateString() === selectedDateStr
+      );
 
-    const todaySessionData = res.data.filter(
-      (s) => new Date(s.startTime).toDateString() === todayStr
-    );
-
-    setTodaySessions(todaySessionData);
-
-    const totalSeconds = todaySessionData.reduce(
-      (sum, s) => sum + (s.totalTime || 0),
-      0
-    );
-
-    setTotalWorkTime(totalSeconds);
-  };
-
-  // 🔥 Calculate ACD
-  useEffect(() => {
-    if (todayCalls.length > 0 && totalWorkTime > 0) {
-      const avg = totalWorkTime / todayCalls.length;
-      setAcd(formatTime(avg));
+      setCalls(filteredCalls);
+    } catch (err) {
+      console.error("Calls fetch error:", err);
+      setCalls([]);
     }
-  }, [todayCalls, totalWorkTime]);
+  };
 
+  // ⏱ Fetch working sessions (date-wise)
+  const fetchSessionsByDate = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/api/sessions/${id}`);
+
+      const filteredSessions = res.data.filter(
+        (s) =>
+          new Date(s.startTime).toDateString() === selectedDateStr
+      );
+
+      setSessions(filteredSessions);
+
+      const totalSeconds = filteredSessions.reduce(
+        (sum, s) => sum + (s.totalTime || 0),
+        0
+      );
+
+      setTotalWorkTime(totalSeconds);
+    } catch (err) {
+      console.error("Sessions fetch error:", err);
+      setTotalWorkTime(0);
+    }
+  };
+
+  // 🔥 Calculate ACD (date-wise)
+  useEffect(() => {
+    if (calls.length > 0 && totalWorkTime > 0) {
+      const avgSeconds = totalWorkTime / calls.length;
+      setAcd(formatTime(avgSeconds));
+    } else {
+      setAcd("0m 0s");
+    }
+  }, [calls, totalWorkTime]);
+
+  // ⏰ Time formatter
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -64,19 +86,34 @@ const AcdPage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>📞 Average Call Duration (Today)</h2>
+     <div  className="ACD-NAV">
+       <h2>📞 Average Call Duration (Date Wise)</h2>
 
       <button className="backbtn" onClick={() => navigate("/allagents")}>
         Back
       </button>
+     </div>
+
+      <br /><br />
+
+      {/* 📅 Date Picker */}
+      <div className="date-filter">
+  <label>Select Date:</label>
+  <input
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+  />
+</div>
+
 
       <br /><br />
 
       {/* 🔥 Summary Cards */}
       <div style={{ display: "flex", gap: "20px", marginBottom: "20px" }}>
         <div className="stat-box">
-          <h3>{todayCalls.length}</h3>
-          <p>Today's Calls</p>
+          <h3>{calls.length}</h3>
+          <p>Total Calls</p>
         </div>
 
         <div className="stat-box">
@@ -90,7 +127,7 @@ const AcdPage = () => {
         </div>
       </div>
 
-      {/* 📋 Call Details */}
+      {/* 📋 Call Details Table */}
       <table border="1" width="100%" cellPadding="10">
         <thead>
           <tr>
@@ -101,12 +138,14 @@ const AcdPage = () => {
           </tr>
         </thead>
         <tbody>
-          {todayCalls.length === 0 ? (
+          {calls.length === 0 ? (
             <tr>
-              <td colSpan="4" align="center">No calls today</td>
+              <td colSpan="4" align="center">
+                No calls on selected date
+              </td>
             </tr>
           ) : (
-            todayCalls.map((c) => (
+            calls.map((c) => (
               <tr key={c._id}>
                 <td>{c.name}</td>
                 <td>{c.phone}</td>
