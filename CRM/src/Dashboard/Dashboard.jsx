@@ -25,6 +25,8 @@ const Dashboard = () => {
   const [activeFollowUp, setActiveFollowUp] = useState(null);
 const [workingTime, setWorkingTime] = useState(0);
 const [breakTime, setBreakTime] = useState(0);
+const handleUnloadRef = useRef(null);
+
 
 
 const [isOnBreak, setIsOnBreak] = useState(
@@ -271,34 +273,74 @@ const formatTime = (seconds) => {
     .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 };
 
-
-  const handleLogout = () => {
+useEffect(() => {
+  handleUnloadRef.current = () => {
     const sessionId = localStorage.getItem("sessionId");
+    if (!sessionId) return;
 
-    if (!sessionId) {
-      console.warn("No active session found");
-      navigate("/");
-      return;
-    }
+    const payload = new Blob(
+      [JSON.stringify({ sessionId })],
+      { type: "application/json" }
+    );
 
-    axios
-      .post(`${BASE_URL}/api/end-session`, { sessionId })
-      .then((res) => {
-        console.log("Session ended:", res.data);
-
-        // 🧹 cleanup
-        localStorage.removeItem("sessionId");
-        localStorage.removeItem("agentId");
-        localStorage.removeItem("token");
-        localStorage.removeItem("workingTime");
-
-        navigate("/");
-      })
-      .catch((err) => {
-        console.error("Error ending session:", err);
-        navigate("/");
-      });
+    navigator.sendBeacon(
+      `${BASE_URL}/api/end-session`,
+      payload
+    );
   };
+
+  window.addEventListener("unload", handleUnloadRef.current);
+
+  return () => {
+    if (handleUnloadRef.current) {
+      window.removeEventListener("unload", handleUnloadRef.current);
+    }
+  };
+}, []);
+
+
+
+  const clearAgentLocalStorage = (agentId) => {
+  if (!agentId) return;
+
+  Object.keys(localStorage).forEach((key) => {
+    if (
+      key.includes(agentId) || // agent specific
+      key.startsWith("workStartTime") ||
+      key.startsWith("totalBreakTime") ||
+      key.startsWith("breakCount") ||
+      key.startsWith("isOnBreak") ||
+      key === "startTime"
+    ) {
+      localStorage.removeItem(key);
+    }
+  });
+};
+
+
+const handleLogout = () => {
+  // 🔥 unload ko band karo
+  if (handleUnloadRef.current) {
+    window.removeEventListener("unload", handleUnloadRef.current);
+  }
+
+  const agentId = localStorage.getItem("agentId");
+  const sessionId = localStorage.getItem("sessionId");
+
+  if (sessionId) {
+    axios.post(`${BASE_URL}/api/end-session`, { sessionId }).catch(() => {});
+  }
+
+  clearAgentLocalStorage(agentId);
+
+  localStorage.removeItem("sessionId");
+  localStorage.removeItem("agentId");
+  localStorage.removeItem("token");
+
+  navigate("/");
+};
+
+
 
 
   const handleNavClick = (navItem) => setActiveNav(navItem);
@@ -311,33 +353,6 @@ const handleStopResume = () => {
     startBreak();
   }
 };
-
-
-
-
-  useEffect(() => {
-    const handleUnload = () => {
-      const sessionId = localStorage.getItem("sessionId");
-      if (!sessionId) return;
-
-      const payload = new Blob(
-        [JSON.stringify({ sessionId })],
-        { type: "application/json" }
-      );
-
-      navigator.sendBeacon(
-        `${BASE_URL}/api/end-session`,
-        payload
-      );
-
-    };
-
-    window.addEventListener("unload", handleUnload);
-
-    return () => {
-      window.removeEventListener("unload", handleUnload);
-    };
-  }, []);
 
   
 useEffect(() => {
