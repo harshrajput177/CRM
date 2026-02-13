@@ -1,0 +1,58 @@
+.unassign-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Base Button Style */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+/* Unassign Selected */
+.btn-selected {
+  background-color: #ff9800;
+  color: #fff;
+}
+
+.btn-selected:hover {
+  background-color: #e68900;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+/* Unassign All */
+.btn-all {
+  background-color: #e53935;
+  color: #fff;
+}
+
+.btn-all:hover {
+  background-color: #c62828;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
+}
+
+/* Click effect */
+.btn:active {
+  transform: scale(0.95);
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .unassign-buttons {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

@@ -165,6 +165,37 @@ const getAssignedLeadsSummary = async (req, res) => {
 };
 
 
+const unassignLeads = async (req, res) => {
+  try {
+    const { agentId, leadId } = req.body;
+
+    if (!agentId || !Array.isArray(leadId)) {
+      return res.status(400).json({
+        message: "agentId and leadId required"
+      });
+    }
+
+    await AssignedLead.updateOne(
+      { agentId },
+      {
+        $pull: {
+          leads: {
+            leadId: { $in: leadId }
+          }
+        }
+      }
+    );
+
+    res.json({ message: "Leads unassigned successfully" });
+
+  } catch (error) {
+    console.error("Unassign error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
 // 🔥 Agent manually adds a lead inside his assigned leads
 const addManualAssignedLead = async (req, res) => {
   try {
@@ -234,6 +265,7 @@ module.exports = {
   getAssignedLeads,
   getAllAssignedLeads,
   getAssignedLeadsSummary,
-  addManualAssignedLead
+  addManualAssignedLead,
+  unassignLeads
 };
 

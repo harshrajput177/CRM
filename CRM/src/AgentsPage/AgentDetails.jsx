@@ -17,6 +17,7 @@ const AgentDetails = () => {
     totalResolved: 0,
     totalFollowUp: 0,
     totalClosed: 0,
+    totalPending: 0
   });
 
   const [selectedDate, setSelectedDate] = useState(
@@ -94,25 +95,37 @@ const AgentDetails = () => {
       }
     };
 
-
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`${BASE_URL}/api/assigned-leads-summary`);
-        const agentData = res.data.find((a) => a.agentId === id);
+        // 1️⃣ Total Assigned (322)
+        const summaryRes = await axios.get(
+          `${BASE_URL}/api/assigned-leads-summary`
+        );
+
+        const agentData = summaryRes.data.find(
+          (a) => a.agentId === id
+        );
+
+        // 2️⃣ Pending (Unresolved)
+        const pendingRes = await axios.get(
+          `${BASE_URL}/api/assigned-leads/${id}`
+        );
+
+        const pendingCount = pendingRes.data.leads.length;
 
         if (agentData) {
-          const joinedDate = new Date(agent?.createdAt || new Date());
-          const today = new Date();
-
           setStats((prev) => ({
             ...prev,
             totalAssigned: agentData.totalLeads,
+            totalPending: pendingCount
           }));
         }
+
       } catch (error) {
         console.error("Stats error:", error);
       }
     };
+
 
     fetchAgent();
     fetchStats();
@@ -156,14 +169,14 @@ const AgentDetails = () => {
   return (
     <div className="agent-details-container">
       <h1>Agent Profile</h1>
-       <div className="date-filter">
-  <label>Select Date:</label>
-  <input
-    type="date"
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-  />
-</div>
+      <div className="date-filter">
+        <label>Select Date:</label>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+        />
+      </div>
 
       <div className="agent-details-card">
         <img
@@ -192,11 +205,13 @@ const AgentDetails = () => {
         </table>
 
         <div className="agent-stats-boxes">
-
           <div className="stat-box clickable" onClick={() => navigate(`/total-assigned/${id}`)}>
-            <h3>{stats.totalAssigned}</h3>
+            <h3>
+              {stats.totalAssigned} / {stats.totalPending}
+            </h3>
             <p>Total Assigned</p>
           </div>
+
 
           <div className="stat-box clickable" onClick={() =>
             navigate(`/total-resolved/${id}?date=${selectedDate}`)

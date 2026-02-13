@@ -36,9 +36,6 @@ const [isOnBreak, setIsOnBreak] = useState(
 const todayKey = new Date().toISOString().split("T")[0];
 // example: 2026-02-09
 
-
-
-
   const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
@@ -307,8 +304,6 @@ useEffect(() => {
     if (
       key.includes(agentId) || // agent specific
       key.startsWith("workStartTime") ||
-      key.startsWith("totalBreakTime") ||
-      key.startsWith("breakCount") ||
       key.startsWith("isOnBreak") ||
       key === "startTime"
     ) {
@@ -363,50 +358,41 @@ useEffect(() => {
 
 
 
+const startBreak = async () => {
+  try {
+    await axios.post(`${BASE_URL}/api/session/start-break`, {
+      agentId
+    });
 
-  const startBreak = () => {
-localStorage.setItem(`breakStartTime_${agentId}`, Date.now());
-localStorage.setItem(`isOnBreak_${agentId}`, "true");
+    // ⏱ local timer ONLY
+    localStorage.setItem(`breakStartTime_${agentId}`, Date.now());
+    localStorage.setItem(`isOnBreak_${agentId}`, "true");
 
-const count =
-  Number(
-    localStorage.getItem(
-      `breakCount_${agentId}_${todayKey}`
-    )
-  ) || 0;
+    setBreakTime(0);
+    setIsOnBreak(true);
 
-localStorage.setItem(
-  `breakCount_${agentId}_${todayKey}`,
-  count + 1
-);
-
-
-
-  setBreakTime(0);
-  setIsOnBreak(true);
-};
-
-const endBreak = () => {
-  const breakStart = Number(
-    localStorage.getItem(`breakStartTime_${agentId}`)
-  );
-
-const totalBreak = Number(localStorage.getItem( `totalBreakTime_${agentId}_${todayKey}`)) || 0;
-
-  if (breakStart) {
-    const duration = Math.floor((Date.now() - breakStart) / 1000);
-  localStorage.setItem(
-  `totalBreakTime_${agentId}_${todayKey}`,
-  totalBreak + duration
-);
+  } catch (err) {
+    alert(err.response?.data?.message || "Break start failed");
   }
-
-  localStorage.removeItem(`breakStartTime_${agentId}`);
-  localStorage.setItem(`isOnBreak_${agentId}`, "false");
-
-  setBreakTime(0);
-  setIsOnBreak(false);
 };
+
+const endBreak = async () => {
+  try {
+    await axios.post(`${BASE_URL}/api/session/end-break`, {
+      agentId
+    });
+
+    localStorage.removeItem(`breakStartTime_${agentId}`);
+    localStorage.setItem(`isOnBreak_${agentId}`, "false");
+
+    setBreakTime(0);
+    setIsOnBreak(false);
+
+  } catch (err) {
+    alert(err.response?.data?.message || "Break end failed");
+  }
+};
+
 
 
 useEffect(() => {

@@ -13,77 +13,77 @@ function Login() {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-const [agentLoading, setAgentLoading] = useState(false);
-const [adminLoading, setAdminLoading] = useState(false);
+  const [agentLoading, setAgentLoading] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
 
 
   const navigate = useNavigate();
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+  const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 
-const handleLogin = async (event, type) => {
-  event.preventDefault();
+  const handleLogin = async (event, type) => {
+    event.preventDefault();
 
-  if (!username || !password) {
-    toast.error("All fields are required.");
-    return;
-  }
+    if (!username || !password) {
+      toast.error("All fields are required.");
+      return;
+    }
 
-  // 🔒 Role-wise loading start
-  type === "agent" ? setAgentLoading(true) : setAdminLoading(true);
+    // 🔒 Role-wise loading start
+    type === "agent" ? setAgentLoading(true) : setAdminLoading(true);
 
-  let latitude = null;
-  let longitude = null;
+    let latitude = null;
+    let longitude = null;
 
-  try {
-    await new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-          resolve();
-        },
-        () => resolve()
-      );
-    });
+    try {
+      await new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            latitude = pos.coords.latitude;
+            longitude = pos.coords.longitude;
+            resolve();
+          },
+          () => resolve()
+        );
+      });
 
-    const url =
-      type === "agent"
-        ? `${BASE_URL}/api/agent-login`
-        : `${BASE_URL}/api/admin-login`;
+      const url =
+        type === "agent"
+          ? `${BASE_URL}/api/agent-login`
+          : `${BASE_URL}/api/admin-login`;
 
-    const response = await axios.post(url, {
-      userId: username,
-      password,
-      rememberMe,
-      latitude,
-      longitude,
-    });
+      const response = await axios.post(url, {
+        userId: username,
+        password,
+        rememberMe,
+        latitude,
+        longitude,
+      });
 
-if (response.status === 200) {
-  if (type === "agent") {
-    localStorage.setItem("token", response.data.token);
-    localStorage.setItem("agentId", response.data.user.id);
+      if (response.status === 200) {
+        if (type === "agent") {
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("agentId", response.data.user.id);
 
-    // ✅ START WORK SESSION (IMPORTANT)
-    await axios.post(`${BASE_URL}/api/start-session`, {
-      agentId: response.data.user.id,
-    });
+          // ✅ START WORK SESSION (IMPORTANT)
+          await axios.post(`${BASE_URL}/api/start-session`, {
+            agentId: response.data.user.id,
+          });
 
-    navigate("/AgentDashboard");
-  } else {
-    navigate("/HRM-Dashboard");
-  }
-}
+          navigate("/AgentDashboard");
+        } else {
+          navigate("/HRM-Dashboard");
+        }
+      }
 
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Login failed ❌");
-  } finally {
-    // 🔓 Role-wise loading stop
-    type === "agent" ? setAgentLoading(false) : setAdminLoading(false);
-  }
-};
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Login failed ❌");
+    } finally {
+      // 🔓 Role-wise loading stop
+      type === "agent" ? setAgentLoading(false) : setAdminLoading(false);
+    }
+  };
 
 
 
@@ -133,27 +133,25 @@ if (response.status === 200) {
             </label>
 
             <div className="login-buttons">
-<button
-  type="button"
-  className={`Tesg-login-button agent-btn ${
-    agentLoading ? "loading" : ""
-  }`}
-  onClick={(e) => handleLogin(e, "agent")}
-  disabled={agentLoading}
->
-  {agentLoading ? "Logging Agent..." : "Login Agent"}
-</button>
+              <button
+                type="button"
+                className={`Tesg-login-button agent-btn ${agentLoading ? "loading" : ""
+                  }`}
+                onClick={(e) => handleLogin(e, "agent")}
+                disabled={agentLoading}
+              >
+                {agentLoading ? "Logging Agent..." : "Login Agent"}
+              </button>
 
-<button
-  type="button"
-  className={`Tesg-login-button admin-btn ${
-    adminLoading ? "loading" : ""
-  }`}
-  onClick={(e) => handleLogin(e, "admin")}
-  disabled={adminLoading}
->
-  {adminLoading ? "Logging Admin..." : "Login Admin"}
-</button>
+              <button
+                type="button"
+                className={`Tesg-login-button admin-btn ${adminLoading ? "loading" : ""
+                  }`}
+                onClick={(e) => handleLogin(e, "admin")}
+                disabled={adminLoading}
+              >
+                {adminLoading ? "Logging Admin..." : "Login Admin"}
+              </button>
 
 
 
