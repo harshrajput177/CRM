@@ -91,14 +91,10 @@ const TotalAssigend = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Assigned Leads</h2>
-
-      <br />
-      <button className="backbtn" onClick={gotoback}>
-        Back
-      </button>
-      <br />
-      <br />
+ <div  className="main-nav-assigend">
+     <div>
+        <h2>Assigned Leads</h2>
+    </div>
     <div className="unassign-buttons">
   <button className="btn btn-selected" onClick={handleUnassignSelected}>
     Unassign Selected
@@ -107,12 +103,16 @@ const TotalAssigend = () => {
   <button className="btn btn-all" onClick={handleUnassignAll}>
     Unassign All
   </button>
+     <button className="backbtn" onClick={gotoback}>
+        Back
+      </button>
 </div>
+ </div>
 
 
 
       {leads.length === 0 ? (
-        <p>No assigned leads found</p>
+       <img className="empty-file-image" src="../../../public/9276421.jpg" alt="" />
       ) : (
         <table border="1" cellPadding="10">
           <thead>

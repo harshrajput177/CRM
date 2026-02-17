@@ -56,3 +56,14 @@
     width: 100%;
   }
 }
+
+.main-nav-assigend{
+    display: flex;
+    align-items: center !important;
+    justify-content: space-between;
+}
+
+.empty-file-image{
+   margin:auto;
+    width: 350px;
+}

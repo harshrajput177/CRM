@@ -190,6 +190,7 @@ const SelectedTable = () => {
                   onClick={() => assignLeadsToAgent(agent._id)}
                 >
                   <img
+                  className="agent-images"
                     src={`${BASE_URL}/uploads/${agent?.image}`}
                     alt={agent.name}
                   />
