@@ -20,6 +20,14 @@ const AgentDetails = () => {
     totalPending: 0
   });
 
+  const [filterType, setFilterType] = useState("date"); 
+// "date" | "month" | "all"
+
+const [selectedMonth, setSelectedMonth] = useState(
+  new Date().toISOString().slice(0, 7) // yyyy-mm
+);
+
+
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0] // default = today
   );
@@ -45,12 +53,24 @@ const AgentDetails = () => {
         const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
         const data = res.data.data;
 
-        const filteredLeads = data.filter(lead => {
-          const leadDate = new Date(lead.createdAt)
-            .toISOString()
-            .split("T")[0];
-          return leadDate === selectedDate;
+        const filteredLeads = data.filter((lead) => {
+          const leadDateObj = new Date(lead.createdAt);
+
+          if (filterType === "date") {
+            const leadDate = leadDateObj.toISOString().split("T")[0];
+            return leadDate === selectedDate;
+          }
+
+          if (filterType === "month") {
+            const leadMonth = leadDateObj.toISOString().slice(0, 7);
+            return leadMonth === selectedMonth;
+          }
+
+          if (filterType === "all") {
+            return true; // no filtering
+          }
         });
+
 
         setResolvedLeads(filteredLeads);
 
@@ -169,14 +189,36 @@ const AgentDetails = () => {
   return (
     <div className="agent-details-container">
       <h1>Agent Profile</h1>
-      <div className="date-filter">
-        <label>Select Date:</label>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
-      </div>
+
+      <div className="filter-type">
+  <label>Filter By:</label>
+  <select
+    value={filterType}
+    onChange={(e) => setFilterType(e.target.value)}
+  >
+    <option value="date">Date Wise</option>
+    <option value="month">Month Wise</option>
+    <option value="all">Full Data</option>
+  </select>
+</div>
+
+{filterType === "date" && (
+  <input
+  className="date-wise-input"
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+  />
+)}
+
+{filterType === "month" && (
+  <input
+  className="month-wise-input"
+    type="month"
+    value={selectedMonth}
+    onChange={(e) => setSelectedMonth(e.target.value)}
+  />
+)}
 
       <div className="agent-details-card">
         <img
