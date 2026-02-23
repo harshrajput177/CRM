@@ -52,24 +52,23 @@ const [selectedMonth, setSelectedMonth] = useState(
       try {
         const res = await axios.get(`${BASE_URL}/api/resolved-leads/${id}`);
         const data = res.data.data;
+const filteredLeads = data.filter((lead) => {
+  const leadDateObj = new Date(lead.createdAt);
 
-        const filteredLeads = data.filter((lead) => {
-          const leadDateObj = new Date(lead.createdAt);
+  if (filterType === "date") {
+    return leadDateObj.toISOString().split("T")[0] === selectedDate;
+  }
 
-          if (filterType === "date") {
-            const leadDate = leadDateObj.toISOString().split("T")[0];
-            return leadDate === selectedDate;
-          }
+  if (filterType === "month") {
+    return leadDateObj.toISOString().slice(0, 7) === selectedMonth;
+  }
 
-          if (filterType === "month") {
-            const leadMonth = leadDateObj.toISOString().slice(0, 7);
-            return leadMonth === selectedMonth;
-          }
+  if (filterType === "all") {
+    return true;
+  }
 
-          if (filterType === "all") {
-            return true; // no filtering
-          }
-        });
+  return false; // fallback
+});
 
 
         setResolvedLeads(filteredLeads);
@@ -151,7 +150,7 @@ const [selectedMonth, setSelectedMonth] = useState(
     fetchStats();
     fetchResolvedLeads();
     fetchWorkingSessions();
-  }, [id, selectedDate]);
+}, [id, selectedDate, selectedMonth, filterType]);
 
 
   const handleDeleteAgent = async () => {
