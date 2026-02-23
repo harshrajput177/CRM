@@ -17,6 +17,16 @@ const FollowUpSheet = () => {
   const [editRemark, setEditRemark] = useState("");
   const [editDispose, setEditDispose] = useState("");
   const [editFollowUp, setEditFollowUp] = useState("");
+  const [filterType, setFilterType] = useState("date");
+  // "date" | "month" | "all"
+
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+
+  const [selectedMonth, setSelectedMonth] = useState(
+    new Date().toISOString().slice(0, 7)
+  );
   const rowRefs = useRef({});
 
 
@@ -33,10 +43,29 @@ const FollowUpSheet = () => {
           `${BASE_URL}/api/resolved-leads/${agentId}`
         );
 
-        // sirf followUp wali leads
-        const filtered = res.data.data.filter(
-          lead => lead.followUp !== null
-        );
+        const filtered = res.data.data.filter((lead) => {
+          if (!lead.createdAt) return false;
+
+          const createdDateObj = new Date(lead.createdAt);
+
+          if (filterType === "date") {
+            const localDate = createdDateObj.toLocaleDateString("en-CA");
+            return localDate === selectedDate;
+          }
+
+          if (filterType === "month") {
+            const localMonth = createdDateObj
+              .toLocaleDateString("en-CA")
+              .slice(0, 7);
+            return localMonth === selectedMonth;
+          }
+
+          if (filterType === "all") {
+            return true;
+          }
+
+          return false;
+        });
 
         setFollowups(filtered);
       } catch (error) {
@@ -49,7 +78,9 @@ const FollowUpSheet = () => {
     if (agentId) fetchFollowUps();
     else setLoading(false);
 
-  }, [agentId]);
+  }, [agentId, selectedDate, selectedMonth, filterType]);
+
+
 
   const openEditModal = (lead) => {
     setCurrentLead(lead);
@@ -163,6 +194,38 @@ const FollowUpSheet = () => {
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
         📋 Follow-Up Sheet
       </h1>
+
+      <div style={{ marginBottom: "20px", textAlign: "center" } }  className="filter-type">
+        <label>Filter By: </label>
+        <select
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="date">Date Wise</option>
+          <option value="month">Month Wise</option>
+          <option value="all">Full Data</option>
+        </select>
+
+        {filterType === "date" && (
+          <input
+          className="date-wise-input"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            style={{ marginLeft: "10px" }}
+          />
+        )}
+
+        {filterType === "month" && (
+          <input
+          className="month-wise-input"
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+            style={{ marginLeft: "10px" }}
+          />
+        )}
+      </div>
 
       <table
         className="followup-table"
