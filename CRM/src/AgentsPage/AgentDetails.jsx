@@ -163,7 +163,7 @@ const filteredLeads = data.filter((lead) => {
     try {
       const token = localStorage.getItem("token");
 
-      await axios.delete(`${BASE_URL}/api/users/${id}`, {
+      await axios.delete(`${BASE_URL}/api/userDb/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
