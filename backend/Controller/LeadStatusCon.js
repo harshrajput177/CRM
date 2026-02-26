@@ -5,7 +5,7 @@ const Notification = require("../Model/Notification");
 
 const saveLeadStatus = async (req, res) => {
   try {
-    const { agentId, leadId, remark, dispose, followUp } = req.body;
+    const { agentId, leadId, remark, dispose, followUp, manualLead } = req.body;
 
     if (!agentId || !leadId) {
       return res
@@ -13,18 +13,35 @@ const saveLeadStatus = async (req, res) => {
         .json({ message: "agentId and leadId required" });
     }
 
+    // 🔍 Check existing status
     let existing = await LeadStatus.findOne({ agentId, leadId });
 
     let leadData = {};
 
-    // 🔒 Snapshot only first time
+    // 🔒 Snapshot only first time (important)
     if (!existing) {
-      const assigned = await AssignedLead.findOne(
-        { agentId, "leads.leadId": String(leadId) },
-        { "leads.$": 1 }
-      );
 
-      leadData = assigned?.leads?.[0]?.data || {};
+      if (manualLead) {
+        // ✅ Manual Lead Snapshot
+        leadData = {
+          Name: manualLead.Name,
+          Mobile: manualLead.Mobile,
+          Gender: manualLead.Gender,
+          State: manualLead.State,
+          District: manualLead.District,
+        };
+      } else {
+        // ✅ Assigned Lead Snapshot
+        const assigned = await AssignedLead.findOne(
+          { agentId, "leads.leadId": String(leadId) },
+          { "leads.$": 1 }
+        );
+
+        leadData = assigned?.leads?.[0]?.data || {};
+      }
+    } else {
+      // 🟢 Agar already exist karta hai to wahi snapshot use karo
+      leadData = existing.lead || {};
     }
 
     const updateFields = {};
@@ -32,41 +49,36 @@ const saveLeadStatus = async (req, res) => {
     if (dispose !== undefined) updateFields.dispose = dispose;
     if (followUp !== undefined) updateFields.followUp = followUp;
 
-if (followUp) {
-  const followUpDate = new Date(followUp);
+    // 🔔 FollowUp Notification Logic
+    if (followUp) {
+      const followUpDate = new Date(followUp);
 
-  const alreadyExists = await Notification.findOne({
-    agentId,
-    leadId,
-    followUpDate,
-  });
+      const alreadyExists = await Notification.findOne({
+        agentId,
+        leadId,
+        followUpDate,
+      });
 
-  if (!alreadyExists) {
-    await Notification.create({
-      agentId,
-      leadId,
+      if (!alreadyExists) {
+        await Notification.create({
+          agentId,
+          leadId,
+          contactName: leadData?.Name || "Unknown",
+          contactNumber: leadData?.Mobile || "N/A",
+          followUpDate,
+        });
+      }
+    }
 
-      // 🔥 EXACT KEYS (tumhare data ke hisaab se)
-      contactName: leadData?.Name || "Unknown",
-      contactNumber: leadData?.Mobile || "N/A",
-
-      followUpDate,
-    });
-  }
-}
-
-
-
-  
-
-
-    // ✅ Save / Update Lead Status
+    // 💾 Save / Update LeadStatus
     const saved = await LeadStatus.findOneAndUpdate(
       { agentId, leadId },
       {
         $set: updateFields,
         $setOnInsert: {
-          lead: leadData, // 🔒 snapshot preserved forever
+          lead: leadData,  // 🔥 snapshot preserved forever
+          agentId,
+          leadId,
         },
       },
       { upsert: true, new: true }
@@ -76,12 +88,12 @@ if (followUp) {
       success: true,
       data: saved,
     });
+
   } catch (err) {
     console.error("Save lead status error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 const getAllLeadStatus = async (req, res) => {
   try {

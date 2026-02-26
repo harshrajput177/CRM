@@ -7,7 +7,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 const AddLeadsPage = () => {
   const agentId = localStorage.getItem("agentId");
 
-  const [assignedLeads, setAssignedLeads] = useState([]);
+  const [followUps, setFollowUps] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -15,89 +15,90 @@ const AddLeadsPage = () => {
     number: "",
     gender: "",
     state: "",
-    district: ""
+    district: "",
+    remark: "",
+    dispose: "",
+    followUp: ""
   });
+  const disposeOptions = [
+  "Ringing",
+  "Interested",
+  "Not Interested",
+  "Call Back Later",
+  "Switched Off",
+  "Wrong Number",
+  "Converted"
+];
 
-  // 🔹 Fetch Assigned Leads
-  const fetchAssignedLeads = async () => {
+  // 🔥 Fetch My FollowUps
+  const fetchFollowUps = async () => {
     try {
       const res = await axios.get(
-        `${BASE_URL}/api/assigned-leads/${agentId}?view=all`
+        `${BASE_URL}/api/resolved-leads/${agentId}?type=followup`
       );
 
-      const leadsArray = Array.isArray(res.data.leads)
-        ? res.data.leads.map(l => ({
-            leadId: l.leadId || l._id,
-            data: l.data || {}
-          }))
-        : [];
-
-      setAssignedLeads(leadsArray);
+      setFollowUps(res.data.data || []);
     } catch (error) {
-      console.error("Fetch error:", error);
-      setAssignedLeads([]);
+      console.error("Fetch followups error:", error);
+      setFollowUps([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (agentId) fetchAssignedLeads();
+    if (agentId) fetchFollowUps();
   }, [agentId]);
 
-  // 🔹 Input Change
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 🔹 Add Manual Follow-up Lead
+  // 🔥 Submit Manual FollowUp
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { name, number, gender, state, district } = formData;
+    const { name, number, gender, state, district, remark, dispose, followUp } = formData;
 
-    if (!name || !number || !gender || !state || !district) {
+    if (!name || !number || !gender || !state || !district || !followUp) {
       alert("All fields are required");
       return;
     }
 
     try {
-      const res = await axios.post(`${BASE_URL}/api/assigned-leads/manual`, {
+      await axios.post(`${BASE_URL}/api/save-lead-status`, {
         agentId,
-        name,
-        number,
-        gender,
-        state,
-        district
+        leadId: Date.now().toString(),
+        remark,
+        dispose,
+        followUp,
+        manualLead: {
+          Name: name,
+          Mobile: number,
+          Gender: gender,
+          State: state,
+          District: district
+        }
       });
 
-      // ✅ UI update without reload
-      setAssignedLeads(prev => [
-        {
-          leadId: res.data.lead?.leadId,
-          data: {
-            Name: name,
-            Mobile: number,
-            Gender: gender,
-            State: state,
-            District: district
-          }
-        },
-        ...prev
-      ]);
+      alert("Follow-up lead added successfully");
 
       setFormData({
         name: "",
         number: "",
         gender: "",
         state: "",
-        district: ""
+        district: "",
+        remark: "",
+        dispose: "",
+        followUp: ""
       });
 
-      alert("Follow-up lead added");
+      fetchFollowUps(); // 🔥 Refresh list
+
     } catch (error) {
-      console.error("Add lead error:", error);
-      alert(error.response?.data?.message || "Failed to add lead");
+      console.error("Add followup error:", error);
+      alert("Failed to add follow-up");
     }
   };
 
@@ -106,81 +107,79 @@ const AddLeadsPage = () => {
   }
 
   return (
-  <div className="addlead-container">
-    <h1 className="addlead-title">📌 Add New Leads</h1>
+    <div className="addlead-container">
+      <h1 className="addlead-title">📌 Add Manual Follow-Up</h1>
 
-    {/* 🔥 ADD LEAD FORM */}
-    <form className="addlead-form" onSubmit={handleSubmit}>
-      <h2>➕ Add New Follow-up Lead</h2>
+      {/* 🔥 FORM */}
+      <form className="addlead-form" onSubmit={handleSubmit}>
+        <h2>➕ Add Follow-Up Lead</h2>
 
-      <input
-        type="text"
-        name="name"
-        placeholder="Customer Name"
-        value={formData.name}
-        onChange={handleChange}
-      />
+        <input type="text" name="name" placeholder="Customer Name" value={formData.name} onChange={handleChange} />
+        <input type="tel" name="number" placeholder="Mobile Number" value={formData.number} onChange={handleChange} />
 
-      <input
-        type="tel"
-        name="number"
-        placeholder="Mobile Number"
-        value={formData.number}
-        onChange={handleChange}
-      />
+        <select name="gender" value={formData.gender} onChange={handleChange}>
+          <option value="">Select Gender</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
 
-      <select
-        name="gender"
-        value={formData.gender}
-        onChange={handleChange}
-      >
-        <option value="">Select Gender</option>
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-        <option value="Other">Other</option>
-      </select>
+        <input type="text" name="state" placeholder="State" value={formData.state} onChange={handleChange} />
+        <input type="text" name="district" placeholder="District" value={formData.district} onChange={handleChange} />
 
-      <input
-        type="text"
-        name="state"
-        placeholder="State"
-        value={formData.state}
-        onChange={handleChange}
-      />
+<input 
+  type="text" 
+  name="remark" 
+  placeholder="Remark" 
+  value={formData.remark} 
+  onChange={handleChange} 
+/>
 
-      <input
-        type="text"
-        name="district"
-        placeholder="District"
-        value={formData.district}
-        onChange={handleChange}
-      />
+<select
+  name="dispose"
+  value={formData.dispose}
+  onChange={handleChange}
+>
+  <option value="">Select Dispose Status</option>
+  {disposeOptions.map((option, index) => (
+    <option key={index} value={option}>
+      {option}
+    </option>
+  ))}
+</select>
 
-      <button type="submit">Save Lead</button>
-    </form>
+<input
+  type="date"
+  name="followUp"
+  value={formData.followUp}
+  onChange={handleChange}
+/>
 
-    {/* 🔥 TOP 6 LEADS */}
-    {assignedLeads.length === 0 ? (
-      <p style={{ marginTop: "20px" }}>No follow-up leads</p>
-    ) : (
-      assignedLeads.slice(0, 6).map((lead, index) => (
-        <div key={index} className="addlead-card">
-          <h3>Lead #{index + 1}</h3>
+        <button type="submit">Save Follow-Up</button>
+      </form>
 
-          <div className="addlead-grid">
-            {Object.entries(lead.data).map(([key, value]) => (
-              <div className="addlead-field" key={key}>
-                <strong>{key}</strong>
-                <div>{String(value)}</div>
-              </div>
-            ))}
+      {/* 🔥 FOLLOWUP LIST */}
+      {followUps.length === 0 ? (
+        <p style={{ marginTop: "20px" }}>No follow-up leads</p>
+      ) : (
+        followUps.slice(0, 10).map((lead, index) => (
+          <div key={lead._id} className="addlead-card">
+            <h3>FollowUp #{index + 1}</h3>
+
+            <div className="addlead-grid">
+              <div><strong>Name:</strong> {lead.name}</div>
+              <div><strong>Phone:</strong> {lead.phone}</div>
+              <div><strong>State:</strong> {lead.state}</div>
+              <div><strong>District:</strong> {lead.district}</div>
+              <div><strong>Remark:</strong> {lead.remark}</div>
+              <div><strong>Dispose:</strong> {lead.dispose}</div>
+              <div><strong>FollowUp Date:</strong> {new Date(lead.followUp).toLocaleDateString()}</div>
+            </div>
           </div>
-        </div>
-      ))
-    )}
-  </div>
-);
-
+        ))
+      )}
+    </div>
+  );
 };
 
 export default AddLeadsPage;
