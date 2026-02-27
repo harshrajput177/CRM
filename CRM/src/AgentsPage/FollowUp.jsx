@@ -39,9 +39,9 @@ const FollowUpSheet = () => {
   useEffect(() => {
     const fetchFollowUps = async () => {
       try {
-        const res = await axios.get(
-          `${BASE_URL}/api/resolved-leads/${agentId}`
-        );
+      const res = await axios.get(
+  `${BASE_URL}/api/resolved-leads/${agentId}?type=followup`
+);
 
         const filtered = res.data.data.filter((lead) => {
           if (!lead.createdAt) return false;

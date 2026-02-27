@@ -195,9 +195,9 @@ const getResolvedLeadsByAgent = async (req, res) => {
     let query = { agentId };
 
     // 🔹 Explicit filters (ONLY if type provided)
-    if (type === "followup") {
-      query.followUp = { $ne: null };
-    }
+  if (type === "followup") {
+  query.followUp = { $ne: null };
+}
 
     if (type === "closed") {
       query.followUp = null;
